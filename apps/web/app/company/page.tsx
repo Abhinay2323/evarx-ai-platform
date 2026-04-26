@@ -12,21 +12,9 @@ export const metadata: Metadata = {
 };
 
 const team = [
-  {
-    name: "Abhinay Krishna",
-    role: "Co-founder & CTO",
-    bio: "Designs and builds the platform end-to-end — fine-tune harness, agent runtime, and the systems customers run on top of."
-  },
-  {
-    name: "Omkar Reddy",
-    role: "Co-founder",
-    bio: "Leads commercial strategy and customer engagements across pharma and hospital systems."
-  },
-  {
-    name: "Pranith Nethikunta",
-    role: "Co-founder",
-    bio: "Drives partnerships, go-to-market, and operations."
-  }
+  { name: "Abhinay Krishna" },
+  { name: "Omkar Reddy" },
+  { name: "Pranith Nethikunta" }
 ];
 
 const roles = [
@@ -101,19 +89,17 @@ export default function CompanyPage() {
           <SectionHeading eyebrow="Team" title="The founders." />
           <div className="mt-12 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {team.map((t) => (
-              <article key={t.name} className="card">
-                <div className="flex h-12 w-12 items-center justify-center rounded-full bg-gradient-to-br from-plasma-500 to-helix-500 font-display text-sm font-semibold text-ink-950">
+              <article key={t.name} className="card flex items-center gap-4">
+                <div className="flex h-12 w-12 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-plasma-500 to-helix-500 font-display text-sm font-semibold text-ink-950">
                   {t.name
                     .split(" ")
                     .map((s) => s[0])
                     .slice(0, 2)
                     .join("")}
                 </div>
-                <h3 className="mt-5 font-display text-base font-semibold text-white">
+                <h3 className="font-display text-base font-semibold text-white">
                   {t.name}
                 </h3>
-                <p className="text-xs text-helix-300">{t.role}</p>
-                <p className="mt-3 text-sm text-zinc-400">{t.bio}</p>
               </article>
             ))}
           </div>
