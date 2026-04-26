@@ -16,7 +16,7 @@ export const leadSchema = z.object({
   ]),
   teamSize: z.enum(["1-10", "11-50", "51-200", "201-1000", "1000+"]),
   interest: z.enum([
-    "Standard (Gemini Flash)",
+    "Standard",
     "Private (Evarx Medical SLM)",
     "Custom (Fine-tuned SLM)",
     "Not sure yet"

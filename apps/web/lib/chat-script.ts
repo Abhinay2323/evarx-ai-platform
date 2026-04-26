@@ -53,7 +53,7 @@ export const chatSuggestions: ChatSuggestion[] = [
 ];
 
 export const greetings = [
-  "Hi — I&apos;m the Evarx demo agent.",
+  "Hi — I'm the Evarx demo agent.",
   "I run on a small medical SLM, fine-tuned on the documents in this sandbox.",
   "Pick a question below to see how I respond — with citations."
 ];

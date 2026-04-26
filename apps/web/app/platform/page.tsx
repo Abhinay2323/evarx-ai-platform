@@ -166,7 +166,7 @@ export default function PlatformPage() {
           <SectionHeading
             eyebrow="01 · Intelligence"
             title="Three engines, one orchestrator."
-            body="Workflows reference an engine by alias. Swap underlying models — Gemini, Evarx Medical SLM, or your fine-tune — without changing a single line of agent code."
+            body="Workflows reference an engine by alias. Swap underlying models — Evarx Standard, Evarx Medical SLM, or your fine-tune — without changing a single line of agent code."
           />
 
           <div className="mt-14 grid gap-5 lg:grid-cols-3">

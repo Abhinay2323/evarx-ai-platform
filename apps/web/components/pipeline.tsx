@@ -8,7 +8,7 @@ const steps = [
     icon: Brain,
     title: "Pick intelligence engine",
     body:
-      "Choose Standard (Gemini Flash), Private (Evarx Medical SLM), or Custom (rapid fine-tune).",
+      "Choose Standard, Private (Evarx Medical SLM), or Custom (rapid fine-tune).",
     accent: "from-plasma-500/30 to-plasma-500/0"
   },
   {

@@ -1,25 +1,45 @@
-import { Award } from "lucide-react";
-
 export function LogoCloud() {
   return (
-    <section className="relative border-y border-white/10 bg-ink-900/40 py-10">
+    <section className="relative border-y border-white/10 bg-ink-900/40 py-12">
       <div className="container-px">
         <p className="text-center text-[11px] font-medium uppercase tracking-[0.22em] text-zinc-500">
           Recognised by
         </p>
-        <div className="mt-4 flex flex-col items-center justify-center gap-2 text-center sm:flex-row sm:gap-3">
-          <Award
-            className="h-5 w-5 shrink-0 text-zinc-300"
-            aria-hidden="true"
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-6 sm:gap-10">
+          <PartnerLogo
+            src="/lilly-logo.png"
+            alt="Eli Lilly"
+            caption="SLM provider"
           />
-          <p className="font-display text-base font-semibold tracking-tight text-zinc-200 sm:text-lg">
-            Eli Lilly SLM provider —{" "}
-            <span className="font-medium text-zinc-400">
-              finalist via T-Hub accelerator
-            </span>
-          </p>
+          <span className="hidden h-8 w-px bg-white/10 sm:inline-block" />
+          <PartnerLogo
+            src="/thub-logo.png"
+            alt="T-Hub"
+            caption="Accelerator finalist"
+          />
         </div>
       </div>
     </section>
+  );
+}
+
+function PartnerLogo({
+  src,
+  alt,
+  caption
+}: {
+  src: string;
+  alt: string;
+  caption: string;
+}) {
+  return (
+    <div className="flex flex-col items-center gap-2">
+      <div className="flex h-14 items-center justify-center rounded-xl bg-white px-5 py-2 shadow-[0_8px_30px_-12px_rgba(0,0,0,0.6)]">
+        <img src={src} alt={alt} className="h-9 w-auto object-contain" />
+      </div>
+      <span className="text-[10px] font-medium uppercase tracking-[0.18em] text-zinc-500">
+        {caption}
+      </span>
+    </div>
   );
 }
