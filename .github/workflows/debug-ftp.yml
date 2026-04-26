@@ -1,0 +1,48 @@
+name: Debug FTP credentials
+
+on:
+  workflow_dispatch:
+
+jobs:
+  debug:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Test FTP credentials and protocols
+        env:
+          FTP_HOST: ${{ secrets.FTP_HOST }}
+          FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
+          FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
+        run: |
+          echo "===== Secret diagnostics (no values revealed) ====="
+          echo "FTP_HOST length:     ${#FTP_HOST}"
+          echo "FTP_USERNAME length: ${#FTP_USERNAME}"
+          echo "FTP_PASSWORD length: ${#FTP_PASSWORD}"
+          echo "FTP_USERNAME first/last char: '${FTP_USERNAME:0:1}' / '${FTP_USERNAME: -1}'"
+          # Detect leading/trailing whitespace
+          if [[ "$FTP_USERNAME" != "$(echo -n "$FTP_USERNAME" | tr -d '[:space:]')" ]]; then
+            echo "WARN: FTP_USERNAME contains whitespace"
+          fi
+          if [[ "$FTP_PASSWORD" != "$(echo -n "$FTP_PASSWORD" | tr -d '[:space:]')" ]]; then
+            echo "WARN: FTP_PASSWORD contains whitespace"
+          fi
+
+          echo ""
+          echo "===== Test 1: plain FTP (port 21) ====="
+          curl --connect-timeout 15 -sv "ftp://$FTP_HOST/" \
+            -u "$FTP_USERNAME:$FTP_PASSWORD" 2>&1 \
+            | sed -E 's/(PASS).*/\1 [REDACTED]/' \
+            | tail -25 || true
+
+          echo ""
+          echo "===== Test 2: explicit FTPS (port 21 + STARTTLS) ====="
+          curl --connect-timeout 15 -sv --ssl-reqd -k "ftp://$FTP_HOST/" \
+            -u "$FTP_USERNAME:$FTP_PASSWORD" 2>&1 \
+            | sed -E 's/(PASS).*/\1 [REDACTED]/' \
+            | tail -25 || true
+
+          echo ""
+          echo "===== Test 3: implicit FTPS (port 990) ====="
+          curl --connect-timeout 15 -sv -k "ftps://$FTP_HOST:990/" \
+            -u "$FTP_USERNAME:$FTP_PASSWORD" 2>&1 \
+            | sed -E 's/(PASS).*/\1 [REDACTED]/' \
+            | tail -25 || true
