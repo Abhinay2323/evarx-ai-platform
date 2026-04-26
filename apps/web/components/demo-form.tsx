@@ -56,7 +56,7 @@ export function DemoForm() {
   async function onSubmit(values: LeadInput) {
     setServerError(null);
     try {
-      const res = await fetch("https://formsubmit.co/ajax/contact@evarx.in", {
+      const res = await fetch("https://formsubmit.co/ajax/ec52f3ded1ef6108c486cf5112453ce9", {
         method: "POST",
         headers: { "Content-Type": "application/json", Accept: "application/json" },
         body: JSON.stringify({
