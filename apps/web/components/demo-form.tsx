@@ -55,20 +55,45 @@ export function DemoForm() {
 
   async function onSubmit(values: LeadInput) {
     setServerError(null);
-    const subject = `Evarx demo request — ${values.company}`;
-    const body =
-      `Name: ${values.fullName}\n` +
-      `Work email: ${values.workEmail}\n` +
-      `Company: ${values.company}\n` +
-      `Role: ${values.role}\n` +
-      `Team size: ${values.teamSize}\n` +
-      `Engine of interest: ${values.interest}\n\n` +
-      `Workflow:\n${values.useCase}\n\n` +
-      `Consent to be contacted: ${values.consent ? "yes" : "no"}\n` +
-      `Submitted: ${new Date().toISOString()}`;
-    const href = `mailto:contact@evarx.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    window.location.href = href;
-    setSubmitted(true);
+    try {
+      const res = await fetch("https://formsubmit.co/ajax/contact@evarx.in", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          _subject: `Evarx demo request — ${values.company}`,
+          _template: "table",
+          _captcha: "false",
+          name: values.fullName,
+          work_email: values.workEmail,
+          company: values.company,
+          role: values.role,
+          team_size: values.teamSize,
+          engine_of_interest: values.interest,
+          workflow: values.useCase,
+          consent: values.consent ? "yes" : "no",
+          submitted_at: new Date().toISOString()
+        })
+      });
+      const data: { success?: boolean | string; message?: string } = await res
+        .json()
+        .catch(() => ({}));
+      const ok = res.ok && (data.success === true || data.success === "true");
+      if (!ok) throw new Error(data.message ?? `Request failed (${res.status})`);
+      setSubmitted(true);
+    } catch (e: unknown) {
+      const subject = `Evarx demo request — ${values.company}`;
+      const body =
+        `Name: ${values.fullName}\n` +
+        `Work email: ${values.workEmail}\n` +
+        `Company: ${values.company}\n` +
+        `Role: ${values.role}\n` +
+        `Team size: ${values.teamSize}\n` +
+        `Engine of interest: ${values.interest}\n\n` +
+        `Workflow:\n${values.useCase}\n\n` +
+        `Consent to be contacted: ${values.consent ? "yes" : "no"}`;
+      window.location.href = `mailto:contact@evarx.in?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      setSubmitted(true);
+    }
   }
 
   if (submitted) {

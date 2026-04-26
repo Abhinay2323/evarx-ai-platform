@@ -84,24 +84,34 @@ const config: Config = {
         },
         auroraSlow: {
           "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
-          "50%": { transform: "translate3d(80px,-50px,0) scale(1.1)" }
+          "50%": { transform: "translate3d(140px,-90px,0) scale(1.18)" }
         },
         auroraMedium: {
           "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
-          "50%": { transform: "translate3d(-60px,40px,0) scale(0.95)" }
+          "50%": { transform: "translate3d(-110px,80px,0) scale(0.92)" }
         },
         auroraFast: {
           "0%, 100%": { transform: "translate3d(0,0,0) scale(1)" },
-          "50%": { transform: "translate3d(40px,-30px,0) scale(1.05)" }
+          "50%": { transform: "translate3d(80px,-60px,0) scale(1.1)" }
+        },
+        orbit: {
+          from: { transform: "translate(-50%,-50%) rotate(0deg)" },
+          to: { transform: "translate(-50%,-50%) rotate(360deg)" }
+        },
+        gridDrift: {
+          from: { backgroundPosition: "0 0" },
+          to: { backgroundPosition: "56px 56px" }
         }
       },
       animation: {
         float: "float 6s ease-in-out infinite",
         shimmer: "shimmer 3s linear infinite",
         pulseRing: "pulseRing 2.4s ease-out infinite",
-        "aurora-slow": "auroraSlow 22s ease-in-out infinite",
-        "aurora-medium": "auroraMedium 28s ease-in-out infinite",
-        "aurora-fast": "auroraFast 18s ease-in-out infinite"
+        "aurora-slow": "auroraSlow 14s ease-in-out infinite",
+        "aurora-medium": "auroraMedium 11s ease-in-out infinite",
+        "aurora-fast": "auroraFast 9s ease-in-out infinite",
+        orbit: "orbit 60s linear infinite",
+        "grid-drift": "gridDrift 18s linear infinite"
       }
     }
   },

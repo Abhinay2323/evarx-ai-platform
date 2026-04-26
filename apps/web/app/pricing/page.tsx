@@ -105,19 +105,19 @@ export default function PricingPage() {
       <section className="py-12">
         <div className="container-px grid gap-5 lg:grid-cols-3">
           {tiers.map((t) => (
-            <div
-              key={t.name}
-              className={cn(
-                "card relative flex flex-col",
-                t.highlight && "shadow-glow ring-1 ring-helix-400/30"
-              )}
-            >
+            <div key={t.name} className="relative flex">
               {t.highlight && (
-                <span className="absolute -top-3 left-6 inline-flex items-center gap-1 rounded-full border border-helix-400/30 bg-helix-500/15 px-2.5 py-1 text-[11px] font-medium uppercase tracking-wider text-helix-200">
+                <span className="absolute -top-3 left-6 z-20 inline-flex items-center gap-1 whitespace-nowrap rounded-full border border-helix-400/40 bg-ink-900/95 px-3 py-1 text-[11px] font-medium uppercase tracking-wider text-helix-200 shadow-[0_4px_20px_-4px_rgba(16,185,129,0.4)] backdrop-blur">
                   <Sparkles className="h-3 w-3" /> Most popular
                 </span>
               )}
-              <div>
+              <div
+                className={cn(
+                  "card flex w-full flex-col",
+                  t.highlight && "shadow-glow ring-1 ring-helix-400/30"
+                )}
+              >
+                <div>
                 <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
                   {t.badge}
                 </p>
@@ -151,6 +151,7 @@ export default function PricingPage() {
               >
                 {t.cta.label} <ArrowRight className="h-4 w-4" />
               </Link>
+              </div>
             </div>
           ))}
         </div>
