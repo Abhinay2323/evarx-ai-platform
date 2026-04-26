@@ -1,0 +1,9 @@
+node_modules
+.next
+.git
+.env
+.env.local
+.DS_Store
+npm-debug.log
+.vercel
+data

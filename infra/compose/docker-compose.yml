@@ -1,0 +1,42 @@
+services:
+  web:
+    build:
+      context: ../..
+      dockerfile: apps/web/Dockerfile
+    image: evarx/web:latest
+    container_name: evarx-web
+    restart: unless-stopped
+    expose:
+      - "3000"
+    environment:
+      - NODE_ENV=production
+      - NEXT_TELEMETRY_DISABLED=1
+    volumes:
+      - leads_data:/app/data
+    networks:
+      - evarx_net
+
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: evarx-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ../caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    depends_on:
+      - web
+    networks:
+      - evarx_net
+
+volumes:
+  leads_data:
+  caddy_data:
+  caddy_config:
+
+networks:
+  evarx_net:
+    driver: bridge

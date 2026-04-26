@@ -1,0 +1,41 @@
+# dependencies
+node_modules/
+
+# Next.js
+.next/
+out/
+next-env.d.ts
+*.tsbuildinfo
+
+# build / cache
+dist/
+.cache/
+.turbo/
+.vercel/
+
+# env
+.env
+.env.local
+.env.*.local
+
+# OS / editor / local tool caches
+.DS_Store
+Thumbs.db
+*.swp
+.idea/
+.vscode/
+.claude/
+.cursor/
+.aider*
+
+# logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+
+# Lead submissions (PII — never commit)
+apps/web/data/leads.json
+
+# Docker volumes / runtime
+caddy_data/
+caddy_config/
