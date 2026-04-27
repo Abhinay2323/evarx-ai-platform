@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { chatSuggestions, greetings, type ChatSuggestion } from "@/lib/chat-script";
 import { cn } from "@/lib/cn";
+import { API_URL, apiAvailable } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -66,6 +67,20 @@ export function ChatTeaser() {
       ...m,
       { id: `u-${Date.now()}`, from: "user", text: s.prompt }
     ]);
+
+    if (apiAvailable()) {
+      // Real backend: stream Claude Haiku via the /v1/public/chat endpoint
+      // and treat any error as a fall-back to the canned response below.
+      try {
+        await streamFromBackend(s.prompt, setMessages, s.citations);
+        setBusy(false);
+        return;
+      } catch (err) {
+        // fall through to mock so the marketing page never looks broken
+        console.warn("public chat failed, using mock", err);
+      }
+    }
+
     await delay(550);
     await streamMessage(s.response, setMessages, s.citations);
     setBusy(false);
@@ -227,6 +242,65 @@ async function streamMessage(
     );
     await delay(28 + Math.random() * 30);
   }
+  setMessages((m) =>
+    m.map((msg) =>
+      msg.id === id ? { ...msg, streaming: false, citations } : msg
+    )
+  );
+}
+
+async function streamFromBackend(
+  prompt: string,
+  setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
+  citations?: ChatSuggestion["citations"]
+) {
+  const id = `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
+  setMessages((m) => [...m, { id, from: "agent", text: "", streaming: true }]);
+
+  const res = await fetch(`${API_URL}/v1/public/chat`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
+    body: JSON.stringify({
+      messages: [{ role: "user", content: prompt }]
+    })
+  });
+  if (!res.ok || !res.body) throw new Error(`backend ${res.status}`);
+
+  const reader = res.body.getReader();
+  const decoder = new TextDecoder();
+  let pending = "";
+  let buf = "";
+
+  while (true) {
+    const { value, done } = await reader.read();
+    if (done) break;
+    pending += decoder.decode(value, { stream: true });
+
+    // SSE frames are delimited by blank lines
+    const frames = pending.split(/\n\n/);
+    pending = frames.pop() ?? "";
+
+    for (const frame of frames) {
+      const line = frame.split("\n").find((l) => l.startsWith("data: "));
+      if (!line) continue;
+      const data = line.slice(6).trim();
+      if (!data) continue;
+      try {
+        const evt = JSON.parse(data);
+        if (evt.type === "token" && typeof evt.delta === "string") {
+          buf += evt.delta;
+          setMessages((m) =>
+            m.map((msg) => (msg.id === id ? { ...msg, text: buf } : msg))
+          );
+        } else if (evt.type === "error") {
+          throw new Error(evt.message ?? "stream error");
+        }
+      } catch {
+        // ignore malformed frame
+      }
+    }
+  }
+
   setMessages((m) =>
     m.map((msg) =>
       msg.id === id ? { ...msg, streaming: false, citations } : msg

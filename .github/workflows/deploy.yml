@@ -3,6 +3,9 @@ name: Deploy to Globehost
 on:
   push:
     branches: [main]
+    paths:
+      - 'apps/web/**'
+      - '.github/workflows/deploy.yml'
   workflow_dispatch:
 
 concurrency:
@@ -30,6 +33,12 @@ jobs:
         run: npm ci
 
       - name: Build static export
+        env:
+          # Backend URL is baked into the static bundle. Set the
+          # NEXT_PUBLIC_API_URL repository variable in GitHub:
+          # Settings → Secrets and variables → Actions → Variables → New
+          # variable. Without it, the chat falls back to mock responses.
+          NEXT_PUBLIC_API_URL: ${{ vars.NEXT_PUBLIC_API_URL }}
         run: npm run build
 
       - name: Deploy to Globehost via FTP

@@ -25,10 +25,15 @@ class Settings(BaseSettings):
     )
     redis_url: str = Field(default="redis://localhost:6379/0")
 
-    # Supabase — phase 0 leaves these unset; auth wiring lands in phase 1.
+    # Supabase — auth wiring lands in phase 2 (alongside RAG).
     supabase_url: str | None = None
     supabase_jwt_secret: str | None = None
     supabase_service_role_key: str | None = None
+
+    # LiteLLM proxy (phase 1)
+    litellm_base_url: str = Field(default="http://litellm:4000")
+    litellm_master_key: str | None = None
+    anthropic_api_key: str | None = None
 
     sentry_dsn: str | None = None
 
