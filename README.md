@@ -9,13 +9,17 @@ A medical AI platform for pharma and healthcare. Build private agents, fine-tune
 ```
 evarx-platform/
 ├── apps/
-│   └── web/            Next.js 15 marketing site (this is what's built so far)
-├── content/            MDX content (placeholder for Phase 2)
+│   ├── web/            Next.js 15 marketing site (deployed to evarx.in)
+│   └── api/            FastAPI backend (deployed to Railway → AWS later)
+├── content/            MDX content (placeholder)
 ├── infra/
-│   ├── compose/        docker-compose for prod single-node + dev
+│   ├── compose/        docker-compose for the web prod stack + API local dev
 │   └── caddy/          Reverse proxy + TLS config
 └── Makefile            Common commands
 ```
+
+See [`apps/api/README.md`](apps/api/README.md) for backend setup and the Railway
+deploy walkthrough.
 
 ## Local development
 
@@ -55,14 +59,25 @@ is only used when self-hosting on a VPS.
 - `/demo` — Multi-step lead capture form (persists to `apps/web/data/leads.json`)
 - `/docs`, `/status`, `/login`, `/privacy`, `/terms`, `/dpa` — supporting pages
 
-## Lead storage
+## Lead capture
 
-The `/demo` form posts to `app/api/leads/route.ts`, which appends validated leads to `apps/web/data/leads.json` inside the container (mounted to a Docker volume in production). Replace this with a Postgres adapter when the backend lands.
+The `/demo` form posts to FormSubmit (an external form-to-email service) so the
+static export on Globehost can capture leads without a backend. The lead
+schema lives in `apps/web/lib/lead-schema.ts`.
 
-## What's next (Phase 2)
+## Backend roadmap
 
-- FastAPI backend for streaming chat against the real Medical SLM
-- Postgres + Qdrant for lead storage and RAG
-- LiteLLM gateway for engine routing
-- Cal.com integration for scheduling
-- MDX-driven blog system (currently flat data file in `lib/posts.ts`)
+The `apps/api/` skeleton is the start of the platform backend. Phased plan:
+
+| Phase | Ships |
+|---|---|
+| **0 — Foundation** | FastAPI on Railway, Postgres + Redis, CORS, health probes, Org/User/Membership schema, Alembic migrations. |
+| **1 — Real chat** | Supabase Auth (JWT verification), LiteLLM gateway, `/v1/chat/completions` SSE streaming Claude Haiku, audit log writer. |
+| **2 — Data + RAG** | S3 upload (ap-south-1), chunking + embedding worker, pgvector retrieval, citations end-to-end. |
+| **3 — Agents + Workflows** | Agent CRUD + invoke, linear workflow runner, `/console/agents` and `/console/workflows` real. |
+| **4 — Medical SLM** | vLLM on AWS GPU serving a Llama-3-8B medical fine-tune, `evarx-medical` engine alias routes to it. |
+| **5 — Billing + polish** | Stripe, usage metering, audit log UI, Sentry/Grafana hooked up. |
+
+The console UI (`apps/web/app/console/`) currently uses mocked data. Once the
+API is up, it will be split out to its own Vercel-hosted Next.js app at
+`app.evarx.in` so we can use SSR + auth-gated routes properly.
