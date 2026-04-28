@@ -1,13 +1,13 @@
 # LiteLLM proxy config — single OpenAI-compatible endpoint in front of every
-# model provider Evarx routes to. Keep model_name aliases stable; phase-1 only
-# wires up Claude Haiku as the "Standard" engine. Add Llama-3 / Phi-3 etc. here
-# when the Medical SLM endpoint is live (phase 4).
+# model provider Evarx routes to. Keep model_name aliases stable; the backend
+# and the frontend always call `evarx-standard` (etc.) — only this file decides
+# what physical model that resolves to.
 
 model_list:
   - model_name: evarx-standard
     litellm_params:
-      model: anthropic/claude-haiku-4-5-20251001
-      api_key: os.environ/ANTHROPIC_API_KEY
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
 
   # Placeholder routes — flip on as the providers come online.
   # - model_name: evarx-medical

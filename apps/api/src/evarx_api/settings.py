@@ -33,7 +33,7 @@ class Settings(BaseSettings):
     # LiteLLM proxy (phase 1)
     litellm_base_url: str = Field(default="http://litellm:4000")
     litellm_master_key: str | None = None
-    anthropic_api_key: str | None = None
+    gemini_api_key: str | None = None
 
     sentry_dsn: str | None = None
 
