@@ -1,0 +1,29 @@
+# Caddy auto-issues + renews Let's Encrypt certs as long as the API_DOMAIN
+# A-record points at this box's public IP. Nothing else to configure.
+
+{$API_DOMAIN} {
+	encode zstd gzip
+
+	# Streaming endpoints — disable buffering so SSE chunks land immediately.
+	@stream path /v1/public/chat /v1/chat*
+	reverse_proxy @stream api:8000 {
+		flush_interval -1
+		transport http {
+			read_timeout 10m
+		}
+	}
+
+	reverse_proxy api:8000
+
+	header {
+		Strict-Transport-Security "max-age=31536000; includeSubDomains"
+		X-Content-Type-Options "nosniff"
+		Referrer-Policy "strict-origin-when-cross-origin"
+		-Server
+	}
+
+	log {
+		output stdout
+		format json
+	}
+}

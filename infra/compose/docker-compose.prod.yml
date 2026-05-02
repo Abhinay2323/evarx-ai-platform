@@ -1,0 +1,102 @@
+# Production compose — runs the full Evarx control plane on a single Lightsail/EC2 box.
+# Pulls env from a sibling .env file. Bring up with:
+#   docker compose -f docker-compose.prod.yml --env-file .env up -d --build
+
+name: evarx-prod
+
+services:
+  postgres:
+    image: pgvector/pgvector:pg16
+    container_name: evarx-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-evarx}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+      POSTGRES_DB: ${POSTGRES_DB:-evarx}
+    volumes:
+      - evarx_pg_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-evarx} -d ${POSTGRES_DB:-evarx}"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:7-alpine
+    container_name: evarx-redis
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    volumes:
+      - evarx_redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+
+  litellm:
+    build:
+      context: ../litellm
+      dockerfile: Dockerfile
+    container_name: evarx-litellm
+    restart: unless-stopped
+    environment:
+      - GEMINI_API_KEY=${GEMINI_API_KEY}
+      - LITELLM_MASTER_KEY=${LITELLM_MASTER_KEY}
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:4000/health/liveliness')"]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../../apps/api
+      dockerfile: Dockerfile
+    container_name: evarx-api
+    restart: unless-stopped
+    environment:
+      ENV: prod
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+      PORT: 8000
+      ALLOWED_ORIGINS: ${ALLOWED_ORIGINS}
+      DATABASE_URL: postgresql+asyncpg://${POSTGRES_USER:-evarx}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB:-evarx}
+      REDIS_URL: redis://redis:6379/0
+      LITELLM_BASE_URL: http://litellm:4000
+      LITELLM_MASTER_KEY: ${LITELLM_MASTER_KEY}
+      GEMINI_API_KEY: ${GEMINI_API_KEY}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      litellm:
+        condition: service_started
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 5s
+      retries: 5
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: evarx-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - evarx_caddy_data:/data
+      - evarx_caddy_config:/config
+    environment:
+      - API_DOMAIN=${API_DOMAIN}
+    depends_on:
+      - api
+
+volumes:
+  evarx_pg_data:
+  evarx_redis_data:
+  evarx_caddy_data:
+  evarx_caddy_config:
