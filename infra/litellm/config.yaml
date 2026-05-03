@@ -11,8 +11,10 @@ model_list:
 
   - model_name: evarx-embed
     litellm_params:
-      model: gemini/text-embedding-004
+      model: gemini/gemini-embedding-001
       api_key: os.environ/GEMINI_API_KEY
+      # Pin output to 768 dims so our pgvector column matches.
+      dimensions: 768
 
   # Placeholder routes — flip on as the providers come online.
   # - model_name: evarx-medical
