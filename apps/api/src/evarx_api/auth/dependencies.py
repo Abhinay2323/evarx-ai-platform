@@ -40,7 +40,7 @@ async def get_current_user(
         )
 
     try:
-        claims = decode_supabase_jwt(credentials.credentials)
+        claims = await decode_supabase_jwt(credentials.credentials)
     except AuthError as e:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
