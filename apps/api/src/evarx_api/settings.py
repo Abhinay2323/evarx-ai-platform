@@ -35,6 +35,22 @@ class Settings(BaseSettings):
     litellm_master_key: str | None = None
     gemini_api_key: str | None = None
 
+    # Model aliases — keep code referencing aliases, swap providers in litellm/config.yaml.
+    embedding_model: str = Field(default="evarx-embed")
+    embedding_dim: int = Field(default=768)
+    chat_model: str = Field(default="evarx-standard")
+
+    # S3 (phase 2.2 — document storage for RAG)
+    aws_access_key_id: str | None = None
+    aws_secret_access_key: str | None = None
+    aws_region: str = Field(default="ap-south-1")
+    s3_bucket: str | None = None
+
+    # RAG knobs
+    chunk_max_tokens: int = Field(default=800)
+    chunk_overlap_tokens: int = Field(default=100)
+    rag_top_k: int = Field(default=6)
+
     sentry_dsn: str | None = None
 
     @property

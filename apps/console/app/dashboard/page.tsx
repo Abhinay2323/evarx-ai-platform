@@ -29,26 +29,89 @@ export default async function DashboardPage() {
             Welcome back{user?.email ? `, ${user.email.split("@")[0]}` : ""}.
           </h1>
           <p className="mt-1 text-sm text-zinc-400">
-            Phase 2.1 — auth is live. Document upload, RAG chat, and audit logs land next.
+            Upload documents on the Documents page, then ask questions over them in Chat.
           </p>
         </div>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          <Card icon={<MessageSquareText className="h-5 w-5" />} title="Agents" desc="Conversational agents over your private documents." status="Coming in 2.2" />
-          <Card icon={<FileText className="h-5 w-5" />} title="Documents" desc="Upload protocols, SOPs, regulatory docs." status="Coming in 2.2" />
-          <Card icon={<ShieldCheck className="h-5 w-5" />} title="Audit log" desc="DPDP-grade audit trail of every chat." status="Coming in 2.3" />
-          <Card icon={<Settings2 className="h-5 w-5" />} title="Org settings" desc="Members, billing, deployment keys." status="Coming in 2.3" />
-          <Card icon={<LayoutDashboard className="h-5 w-5" />} title="Usage" desc="Token spend, doc count, query volume." status="Coming in 2.3" />
+          <LiveCard
+            href="/chat"
+            icon={<MessageSquareText className="h-5 w-5" />}
+            title="Chat"
+            desc="Ask questions over your private documents — answers cited from source chunks."
+          />
+          <LiveCard
+            href="/documents"
+            icon={<FileText className="h-5 w-5" />}
+            title="Documents"
+            desc="Upload protocols, SOPs, regulatory docs. Indexed automatically for retrieval."
+          />
+          <SoonCard
+            icon={<ShieldCheck className="h-5 w-5" />}
+            title="Audit log"
+            desc="DPDP-grade audit trail of every chat."
+            status="Coming in 2.3"
+          />
+          <SoonCard
+            icon={<Settings2 className="h-5 w-5" />}
+            title="Org settings"
+            desc="Members, billing, deployment keys."
+            status="Coming in 2.3"
+          />
+          <SoonCard
+            icon={<LayoutDashboard className="h-5 w-5" />}
+            title="Usage"
+            desc="Token spend, doc count, query volume."
+            status="Coming in 2.3"
+          />
         </div>
       </main>
     </div>
   );
 }
 
-function Card({ icon, title, desc, status }: { icon: React.ReactNode; title: string; desc: string; status: string }) {
+function LiveCard({
+  href,
+  icon,
+  title,
+  desc
+}: {
+  href: string;
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+}) {
+  return (
+    <Link
+      href={href}
+      className="group rounded-2xl border border-white/10 bg-ink-900/60 p-5 transition hover:border-helix-400/40 hover:bg-ink-800/60"
+    >
+      <div className="flex items-center gap-3 text-helix-300">
+        {icon}
+        <h3 className="text-sm font-semibold text-white">{title}</h3>
+      </div>
+      <p className="mt-2 text-xs text-zinc-400 leading-relaxed">{desc}</p>
+      <p className="mt-4 inline-flex items-center rounded-full border border-helix-400/40 bg-helix-400/10 px-2 py-0.5 text-[10px] uppercase tracking-wide text-helix-200">
+        Open →
+      </p>
+    </Link>
+  );
+}
+
+function SoonCard({
+  icon,
+  title,
+  desc,
+  status
+}: {
+  icon: React.ReactNode;
+  title: string;
+  desc: string;
+  status: string;
+}) {
   return (
     <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-5">
-      <div className="flex items-center gap-3 text-helix-300">
+      <div className="flex items-center gap-3 text-zinc-400">
         {icon}
         <h3 className="text-sm font-semibold text-white">{title}</h3>
       </div>

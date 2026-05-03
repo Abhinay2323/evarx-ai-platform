@@ -9,6 +9,11 @@ model_list:
       model: gemini/gemini-2.5-flash
       api_key: os.environ/GEMINI_API_KEY
 
+  - model_name: evarx-embed
+    litellm_params:
+      model: gemini/text-embedding-004
+      api_key: os.environ/GEMINI_API_KEY
+
   # Placeholder routes — flip on as the providers come online.
   # - model_name: evarx-medical
   #   litellm_params:

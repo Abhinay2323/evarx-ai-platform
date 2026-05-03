@@ -11,8 +11,10 @@ from typing import Any
 
 from fastapi import Depends, HTTPException, status
 from fastapi.security import HTTPAuthorizationCredentials, HTTPBearer
+from sqlalchemy.ext.asyncio import AsyncSession
 
 from evarx_api.auth.jwt import AuthError, decode_supabase_jwt
+from evarx_api.core.db import get_session
 
 _bearer = HTTPBearer(auto_error=False, description="Supabase access token")
 
@@ -54,3 +56,18 @@ async def get_current_user(
         org_name=metadata.get("org_name"),
         claims=claims,
     )
+
+
+async def get_current_identity(
+    auth: "AuthUser" = Depends(get_current_user),
+    db: AsyncSession = Depends(get_session),
+):
+    """Like get_current_user, but also resolves/creates the local user+org rows.
+
+    Use this in any route that needs to know the caller's org_id (i.e. anything
+    touching org-scoped data: documents, chat, audit logs).
+    """
+    # Imported lazily to avoid circular import (bootstrap imports AuthUser).
+    from evarx_api.auth.bootstrap import resolve_identity
+
+    return await resolve_identity(db, auth)

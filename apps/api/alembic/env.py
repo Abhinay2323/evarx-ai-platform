@@ -14,6 +14,7 @@ from alembic import context
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
 from evarx_api.core.db import Base  # noqa: E402
+from evarx_api.documents import models as _documents_models  # noqa: F401, E402
 from evarx_api.logs import models as _logs_models  # noqa: F401, E402
 from evarx_api.orgs import models as _orgs_models  # noqa: F401, E402
 from evarx_api.settings import get_settings  # noqa: E402
