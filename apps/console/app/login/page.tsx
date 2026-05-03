@@ -1,3 +1,4 @@
+import { Suspense } from "react";
 import { LoginForm } from "@/components/auth/login-form";
 import Link from "next/link";
 
@@ -18,7 +19,9 @@ export default function LoginPage() {
         </div>
 
         <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-6 shadow-glow">
-          <LoginForm />
+          <Suspense fallback={<div className="h-64" />}>
+            <LoginForm />
+          </Suspense>
         </div>
 
         <p className="text-center text-sm text-zinc-500">
