@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   MessageSquareText,
@@ -10,11 +11,11 @@ import {
   Send,
   Cpu,
   ShieldCheck,
-  ExternalLink
+  ExternalLink,
+  CalendarDays
 } from "lucide-react";
 import { chatSuggestions, greetings, type ChatSuggestion } from "@/lib/chat-script";
 import { cn } from "@/lib/cn";
-import { API_URL, apiAvailable } from "@/lib/api";
 
 interface Message {
   id: string;
@@ -22,6 +23,7 @@ interface Message {
   text: string;
   citations?: ChatSuggestion["citations"];
   streaming?: boolean;
+  showCta?: boolean;
 }
 
 export function ChatTeaser() {
@@ -67,22 +69,8 @@ export function ChatTeaser() {
       ...m,
       { id: `u-${Date.now()}`, from: "user", text: s.prompt }
     ]);
-
-    if (apiAvailable()) {
-      // Real backend: stream Claude Haiku via the /v1/public/chat endpoint
-      // and treat any error as a fall-back to the canned response below.
-      try {
-        await streamFromBackend(s.prompt, setMessages, s.citations);
-        setBusy(false);
-        return;
-      } catch (err) {
-        // fall through to mock so the marketing page never looks broken
-        console.warn("public chat failed, using mock", err);
-      }
-    }
-
-    await delay(550);
-    await streamMessage(s.response, setMessages, s.citations);
+    await delay(450);
+    await streamMessage(s.response, setMessages, s.citations, true);
     setBusy(false);
   }
 
@@ -120,9 +108,9 @@ export function ChatTeaser() {
               <Sparkles className="h-4 w-4" />
             </div>
             <div>
-              <p className="text-sm font-semibold text-white">Evarx demo agent</p>
+              <p className="text-sm font-semibold text-white">Evarx demo concierge</p>
               <p className="flex items-center gap-1.5 text-[11px] text-helix-300">
-                <Cpu className="h-3 w-3" /> Evarx-Med-3B · CPU · demo
+                <Cpu className="h-3 w-3" /> Evarx-Med-3B · CPU · private demos
               </p>
             </div>
           </div>
@@ -163,13 +151,13 @@ export function ChatTeaser() {
           ) : (
             <div className="flex items-center gap-2 text-[11px] text-zinc-500">
               <span className="h-1 w-1 animate-pulse rounded-full bg-helix-400" />
-              Loading suggested prompts…
+              Loading topics…
             </div>
           )}
 
           <p className="mt-3 flex items-center gap-1.5 text-[10px] text-zinc-500">
             <ShieldCheck className="h-3 w-3 text-helix-400" />
-            Demo only. Responses illustrate platform capabilities.
+            Live agent demos run privately on your own documents under NDA.
           </p>
         </div>
       </motion.div>
@@ -207,6 +195,15 @@ function ChatBubble({ message }: { message: Message }) {
           ))}
         </div>
       ) : null}
+      {message.showCta && !message.streaming ? (
+        <Link
+          href="/demo"
+          className="ml-1 inline-flex items-center gap-2 rounded-xl bg-gradient-to-r from-helix-400 to-plasma-500 px-3.5 py-2 text-xs font-semibold text-ink-950 shadow-glow transition hover:brightness-110"
+        >
+          <CalendarDays className="h-3.5 w-3.5" />
+          Book a 15-min demo
+        </Link>
+      ) : null}
     </div>
   );
 }
@@ -228,7 +225,8 @@ function delay(ms: number) {
 async function streamMessage(
   text: string,
   setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
-  citations?: ChatSuggestion["citations"]
+  citations?: ChatSuggestion["citations"],
+  showCta = false
 ) {
   const id = `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
   setMessages((m) => [...m, { id, from: "agent", text: "", streaming: true }]);
@@ -244,66 +242,7 @@ async function streamMessage(
   }
   setMessages((m) =>
     m.map((msg) =>
-      msg.id === id ? { ...msg, streaming: false, citations } : msg
-    )
-  );
-}
-
-async function streamFromBackend(
-  prompt: string,
-  setMessages: React.Dispatch<React.SetStateAction<Message[]>>,
-  citations?: ChatSuggestion["citations"]
-) {
-  const id = `a-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`;
-  setMessages((m) => [...m, { id, from: "agent", text: "", streaming: true }]);
-
-  const res = await fetch(`${API_URL}/v1/public/chat`, {
-    method: "POST",
-    headers: { "Content-Type": "application/json", Accept: "text/event-stream" },
-    body: JSON.stringify({
-      messages: [{ role: "user", content: prompt }]
-    })
-  });
-  if (!res.ok || !res.body) throw new Error(`backend ${res.status}`);
-
-  const reader = res.body.getReader();
-  const decoder = new TextDecoder();
-  let pending = "";
-  let buf = "";
-
-  while (true) {
-    const { value, done } = await reader.read();
-    if (done) break;
-    pending += decoder.decode(value, { stream: true });
-
-    // SSE frames are delimited by blank lines
-    const frames = pending.split(/\n\n/);
-    pending = frames.pop() ?? "";
-
-    for (const frame of frames) {
-      const line = frame.split("\n").find((l) => l.startsWith("data: "));
-      if (!line) continue;
-      const data = line.slice(6).trim();
-      if (!data) continue;
-      try {
-        const evt = JSON.parse(data);
-        if (evt.type === "token" && typeof evt.delta === "string") {
-          buf += evt.delta;
-          setMessages((m) =>
-            m.map((msg) => (msg.id === id ? { ...msg, text: buf } : msg))
-          );
-        } else if (evt.type === "error") {
-          throw new Error(evt.message ?? "stream error");
-        }
-      } catch {
-        // ignore malformed frame
-      }
-    }
-  }
-
-  setMessages((m) =>
-    m.map((msg) =>
-      msg.id === id ? { ...msg, streaming: false, citations } : msg
+      msg.id === id ? { ...msg, streaming: false, citations, showCta } : msg
     )
   );
 }
