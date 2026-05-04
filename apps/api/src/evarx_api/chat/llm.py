@@ -28,6 +28,40 @@ def _client() -> httpx.AsyncClient:
     )
 
 
+async def complete_chat(
+    *,
+    model: str,
+    messages: list[dict[str, str]],
+    temperature: float,
+    max_tokens: int,
+) -> str:
+    """Non-streaming completion. Returns the full assistant text.
+
+    We use this for the authenticated /v1/chat path because LiteLLM's Gemini
+    streaming parser currently mis-parses Google's final chunk shape (it can
+    arrive as a list, the parser expects a dict). Non-streaming sidesteps that
+    entirely; we fake the typewriter effect on the SSE side.
+    """
+    payload = {
+        "model": model,
+        "messages": messages,
+        "temperature": temperature,
+        "max_tokens": max_tokens,
+        "stream": False,
+    }
+    async with _client() as client:
+        resp = await client.post("/v1/chat/completions", json=payload)
+        if resp.status_code >= 400:
+            detail = resp.text[:500]
+            log.warning("litellm.error", status=resp.status_code, detail=detail)
+            raise LLMError(f"LiteLLM upstream error: {resp.status_code}")
+        body = resp.json()
+    try:
+        return body["choices"][0]["message"]["content"] or ""
+    except (KeyError, IndexError, TypeError) as e:
+        raise LLMError(f"Malformed completion response: {e}") from e
+
+
 async def stream_chat(
     *,
     model: str,

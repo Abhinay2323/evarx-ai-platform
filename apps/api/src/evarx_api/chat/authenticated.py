@@ -9,7 +9,9 @@ Pipeline per request:
 
 from __future__ import annotations
 
+import asyncio
 import json
+import re
 from collections.abc import AsyncIterator
 from typing import Literal
 
@@ -23,7 +25,7 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from evarx_api.auth.bootstrap import Identity
 from evarx_api.auth.dependencies import get_current_identity
 from evarx_api.chat.embeddings import EmbeddingError, embed_one
-from evarx_api.chat.llm import LLMError, stream_chat
+from evarx_api.chat.llm import LLMError, complete_chat
 from evarx_api.core.db import get_session
 from evarx_api.documents.models import Document, DocumentChunk
 from evarx_api.logs.writer import write_audit_log
@@ -64,6 +66,19 @@ NO_CONTEXT_PROMPT = (
 
 def _sse(payload: dict) -> bytes:
     return f"data: {json.dumps(payload)}\n\n".encode("utf-8")
+
+
+_SPLIT_RE = re.compile(r"(\s+)")
+
+
+def _split_for_stream(text: str) -> list[str]:
+    """Split into word + whitespace tokens so the client can render with a
+    typewriter feel. We preserve whitespace exactly so newlines/code blocks
+    render correctly when concatenated."""
+    if not text:
+        return []
+    parts = _SPLIT_RE.split(text)
+    return [p for p in parts if p]
 
 
 def _build_context_block(chunks: list[tuple[DocumentChunk, Document]]) -> str:
@@ -147,17 +162,20 @@ async def authenticated_chat(
         finish_reason: str | None = None
         try:
             yield _sse({"type": "citations", "citations": citations})
-            async for chunk in stream_chat(
+            text = await complete_chat(
                 model=payload.model,
                 messages=messages,
                 temperature=payload.temperature,
                 max_tokens=payload.max_tokens,
-            ):
-                if chunk["delta"]:
-                    yield _sse({"type": "token", "delta": chunk["delta"]})
-                if chunk["finish_reason"]:
-                    finish_reason = chunk["finish_reason"]
-            yield _sse({"type": "done", "finish_reason": finish_reason or "stop"})
+            )
+            # Fake-stream word by word for a typewriter feel. LiteLLM's Gemini
+            # streaming parser is broken (b/list-vs-dict) so we use the
+            # non-streaming completion and synthesize the SSE on our side.
+            for token in _split_for_stream(text):
+                yield _sse({"type": "token", "delta": token})
+                await asyncio.sleep(0.012)
+            finish_reason = "stop"
+            yield _sse({"type": "done", "finish_reason": finish_reason})
         except LLMError as e:
             log.warning("chat.upstream_error", error=str(e))
             yield _sse({"type": "error", "message": "Upstream model unavailable"})
