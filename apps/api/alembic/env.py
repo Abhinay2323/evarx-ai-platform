@@ -13,6 +13,8 @@ from alembic import context
 # Make `src/` importable so `evarx_api.*` resolves
 sys.path.insert(0, str(Path(__file__).parent.parent / "src"))
 
+from evarx_api.agents import models as _agents_models  # noqa: F401, E402
+from evarx_api.conversations import models as _conv_models  # noqa: F401, E402
 from evarx_api.core.db import Base  # noqa: E402
 from evarx_api.documents import models as _documents_models  # noqa: F401, E402
 from evarx_api.logs import models as _logs_models  # noqa: F401, E402

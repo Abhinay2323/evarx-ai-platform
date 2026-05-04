@@ -23,6 +23,7 @@ dependencies = [
     "tiktoken>=0.8.0",
     "python-multipart>=0.0.20",
     "email-validator>=2.2.0",
+    "aiosmtplib>=3.0.2",
 ]
 
 [project.optional-dependencies]

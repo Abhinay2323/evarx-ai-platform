@@ -51,7 +51,23 @@ class Settings(BaseSettings):
     chunk_overlap_tokens: int = Field(default=100)
     rag_top_k: int = Field(default=6)
 
+    # SMTP (Phase 2.4 — invite emails). All optional; missing creds disable email
+    # delivery and fall back to admin-shares-link mode.
+    smtp_host: str | None = None
+    smtp_port: int = Field(default=587)
+    smtp_username: str | None = None
+    smtp_password: str | None = None
+    smtp_from: str | None = None  # "Evarx <noreply@evarx.in>"
+    smtp_use_tls: bool = Field(default=True)  # STARTTLS
+    smtp_use_ssl: bool = Field(default=False)  # SMTPS (port 465)
+
+    console_url: str = Field(default="https://app.evarx.in")
+
     sentry_dsn: str | None = None
+
+    @property
+    def smtp_configured(self) -> bool:
+        return bool(self.smtp_host and self.smtp_from)
 
     @property
     def allowed_origins_list(self) -> list[str]:

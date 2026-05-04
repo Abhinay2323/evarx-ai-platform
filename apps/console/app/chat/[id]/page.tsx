@@ -1,24 +1,38 @@
 import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
+import { notFound } from "next/navigation";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { ChatShell } from "@/components/chat/chat-shell";
 import { serverFetch } from "@/lib/server-fetch";
-import type { AgentRow, ConversationSummary } from "@/lib/types";
+import type {
+  AgentRow,
+  ConversationDetail,
+  ConversationSummary
+} from "@/lib/types";
 
 export const metadata = { title: "Chat · Evarx Console" };
 export const dynamic = "force-dynamic";
 
-export default async function ChatPage() {
+export default async function ChatByIdPage({
+  params
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = await params;
+
+  let detail: ConversationDetail | null = null;
   let conversations: ConversationSummary[] = [];
   let agents: AgentRow[] = [];
+
   try {
-    [conversations, agents] = await Promise.all([
+    [detail, conversations, agents] = await Promise.all([
+      serverFetch<ConversationDetail>(`/v1/conversations/${id}`),
       serverFetch<ConversationSummary[]>("/v1/conversations"),
       serverFetch<AgentRow[]>("/v1/agents")
     ]);
   } catch {
-    /* fall through with empty arrays */
+    notFound();
   }
 
   return (
@@ -36,14 +50,18 @@ export default async function ChatPage() {
 
       <main className="mx-auto max-w-7xl px-4 pb-6 pt-6 sm:px-6">
         <Link
-          href="/dashboard"
+          href="/chat"
           className="mb-4 inline-flex items-center gap-1.5 text-xs text-zinc-500 transition hover:text-zinc-300"
         >
           <ArrowLeft className="h-3.5 w-3.5" />
-          Dashboard
+          Chats
         </Link>
 
-        <ChatShell conversations={conversations} agents={agents} />
+        <ChatShell
+          conversations={conversations}
+          agents={agents}
+          initialConversation={detail}
+        />
       </main>
     </div>
   );

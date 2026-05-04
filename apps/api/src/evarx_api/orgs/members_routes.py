@@ -18,8 +18,14 @@ from evarx_api.auth.bootstrap import Identity
 from evarx_api.auth.dependencies import get_current_identity
 from evarx_api.core.db import get_session
 from evarx_api.logs.writer import write_audit_log
+from evarx_api.notifications.email import (
+    EmailDeliveryError,
+    EmailDisabled,
+    send_email,
+)
 from evarx_api.orgs.invites_models import OrgInvite
 from evarx_api.orgs.models import Membership, User
+from evarx_api.settings import get_settings
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/v1/orgs/me", tags=["orgs"])
@@ -50,6 +56,7 @@ class InviteRead(BaseModel):
     created_at: datetime
     expires_at: datetime
     invited_by_email: str | None
+    email_sent: bool | None = None
 
 
 class InviteAccept(BaseModel):
@@ -208,6 +215,14 @@ async def create_invite(
     except Exception:
         log.exception("invite.audit_failed", invite_id=str(invite.id))
 
+    email_sent = await _send_invite_email(
+        to=email,
+        org_name=identity.org.name,
+        role=invite.role,
+        token=invite.token,
+        invited_by_email=identity.user.email,
+    )
+
     return InviteRead(
         id=invite.id,
         email=invite.email,
@@ -216,7 +231,70 @@ async def create_invite(
         created_at=invite.created_at,
         expires_at=invite.expires_at,
         invited_by_email=identity.user.email,
+        email_sent=email_sent,
     )
+
+
+async def _send_invite_email(
+    *,
+    to: str,
+    org_name: str,
+    role: str,
+    token: str,
+    invited_by_email: str | None,
+) -> bool | None:
+    """Best-effort. None = SMTP not configured (UI shows share-link). True = sent.
+    False = SMTP configured but delivery failed (UI still shows share-link)."""
+    settings = get_settings()
+    if not settings.smtp_configured:
+        return None
+
+    accept_url = f"{settings.console_url.rstrip('/')}/invites/{token}"
+    inviter_line = f" by {invited_by_email}" if invited_by_email else ""
+
+    text = (
+        f"You've been invited to join {org_name} on Evarx{inviter_line} as a {role}.\n\n"
+        f"Accept the invite here:\n{accept_url}\n\n"
+        f"This link expires in 14 days. If you weren't expecting this email, you can ignore it.\n\n"
+        f"— Evarx"
+    )
+    html = f"""
+<!doctype html>
+<html><body style="font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Roboto,sans-serif;background:#05060F;color:#e4e4e7;margin:0;padding:32px 16px;">
+  <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:520px;margin:0 auto;background:#0A0C1A;border:1px solid rgba(255,255,255,0.08);border-radius:16px;padding:32px;">
+    <tr><td>
+      <h1 style="margin:0 0 8px;font-size:20px;color:#ffffff;">You've been invited to {org_name}</h1>
+      <p style="margin:0 0 16px;color:#a1a1aa;font-size:14px;line-height:1.6;">
+        {invited_by_email or "An admin"} has invited you to join <strong style="color:#fff;">{org_name}</strong> on Evarx as a <strong style="color:#fff;">{role}</strong>.
+      </p>
+      <p style="margin:0 0 24px;color:#a1a1aa;font-size:14px;line-height:1.6;">
+        Click below to accept. This link expires in 14 days.
+      </p>
+      <a href="{accept_url}" style="display:inline-block;background:linear-gradient(90deg,#22C48A,#3B4DFF);color:#05060F;font-weight:600;text-decoration:none;padding:12px 20px;border-radius:12px;font-size:14px;">Accept invite</a>
+      <p style="margin:24px 0 0;color:#71717a;font-size:12px;">
+        If the button doesn't work, paste this URL into your browser:<br>
+        <span style="color:#a1a1aa;word-break:break-all;">{accept_url}</span>
+      </p>
+    </td></tr>
+  </table>
+</body></html>
+"""
+
+    try:
+        await send_email(
+            to=to,
+            subject=f"You've been invited to {org_name} on Evarx",
+            text=text,
+            html=html,
+        )
+        return True
+    except EmailDisabled:
+        return None
+    except EmailDeliveryError:
+        return False
+    except Exception:
+        log.exception("invite.email_unexpected", to=to)
+        return False
 
 
 @router.delete("/invites/{invite_id}", status_code=status.HTTP_204_NO_CONTENT)

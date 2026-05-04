@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 import { LogoutButton } from "@/components/auth/logout-button";
-import { LayoutDashboard, MessageSquareText, FileText, ShieldCheck, Settings2 } from "lucide-react";
+import { Bot, LayoutDashboard, MessageSquareText, FileText, ShieldCheck, Settings2 } from "lucide-react";
 import Link from "next/link";
 
 export const metadata = { title: "Dashboard · Evarx Console" };
@@ -39,6 +39,12 @@ export default async function DashboardPage() {
             icon={<MessageSquareText className="h-5 w-5" />}
             title="Chat"
             desc="Ask questions over your private documents — answers cited from source chunks."
+          />
+          <LiveCard
+            href="/agents"
+            icon={<Bot className="h-5 w-5" />}
+            title="Agents"
+            desc="Named retrieval scopes — each agent has its own document set and instructions."
           />
           <LiveCard
             href="/documents"
@@ -98,27 +104,3 @@ function LiveCard({
   );
 }
 
-function SoonCard({
-  icon,
-  title,
-  desc,
-  status
-}: {
-  icon: React.ReactNode;
-  title: string;
-  desc: string;
-  status: string;
-}) {
-  return (
-    <div className="rounded-2xl border border-white/10 bg-ink-900/60 p-5">
-      <div className="flex items-center gap-3 text-zinc-400">
-        {icon}
-        <h3 className="text-sm font-semibold text-white">{title}</h3>
-      </div>
-      <p className="mt-2 text-xs text-zinc-400 leading-relaxed">{desc}</p>
-      <p className="mt-4 inline-flex items-center rounded-full border border-white/10 bg-white/[0.03] px-2 py-0.5 text-[10px] uppercase tracking-wide text-zinc-500">
-        {status}
-      </p>
-    </div>
-  );
-}

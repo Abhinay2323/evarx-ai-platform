@@ -85,4 +85,35 @@ export interface InviteRow {
   created_at: string;
   expires_at: string;
   invited_by_email: string | null;
+  email_sent?: boolean | null;
+}
+
+export interface AgentRow {
+  id: string;
+  name: string;
+  description: string | null;
+  system_prompt_addendum: string | null;
+  document_ids: string[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationSummary {
+  id: string;
+  title: string;
+  agent_id: string | null;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface ConversationMessage {
+  id: string;
+  role: "user" | "assistant" | "system";
+  content: string;
+  citations: Citation[];
+  created_at: string;
+}
+
+export interface ConversationDetail extends ConversationSummary {
+  messages: ConversationMessage[];
 }

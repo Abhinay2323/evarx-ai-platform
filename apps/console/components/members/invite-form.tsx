@@ -21,6 +21,7 @@ type FormValues = z.infer<typeof schema>;
 interface CreatedInvite {
   email: string;
   token: string;
+  email_sent?: boolean | null;
 }
 
 export function InviteForm({ marketingUrl }: { marketingUrl: string }) {
@@ -62,8 +63,12 @@ export function InviteForm({ marketingUrl }: { marketingUrl: string }) {
         setServerError(detail || `Invite failed (${res.status})`);
         return;
       }
-      const data = (await res.json()) as { email: string; token: string };
-      setCreated({ email: data.email, token: data.token });
+      const data = (await res.json()) as {
+        email: string;
+        token: string;
+        email_sent?: boolean | null;
+      };
+      setCreated({ email: data.email, token: data.token, email_sent: data.email_sent });
       reset({ email: "", role: "member" });
       router.refresh();
     } catch (e) {
@@ -153,12 +158,17 @@ function CreatedInviteBanner({
     }
   }
 
+  const sub =
+    created.email_sent === true
+      ? `Email sent. They can also accept via the link below.`
+      : created.email_sent === false
+        ? `Email delivery failed — share the link manually.`
+        : `Email delivery isn't configured — share this link manually.`;
+
   return (
     <div className="rounded-xl border border-helix-400/30 bg-helix-400/5 p-3 text-xs text-helix-100">
       <p className="font-medium">Invite created for {created.email}</p>
-      <p className="mt-1 text-helix-200/80">
-        Share this link — they'll need it to accept (we don't send email yet).
-      </p>
+      <p className="mt-1 text-helix-200/80">{sub}</p>
       <div className="mt-2 flex items-center gap-2">
         <code className="flex-1 truncate rounded-md border border-white/10 bg-ink-950/50 px-2 py-1.5 font-mono text-[11px] text-zinc-300">
           {link}
