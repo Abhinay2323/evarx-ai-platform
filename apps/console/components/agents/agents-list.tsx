@@ -110,9 +110,21 @@ export function AgentsList({
                 </div>
               </div>
 
-              <div className="mt-3 inline-flex items-center gap-1.5 text-[11px] text-zinc-500">
-                <FileText className="h-3 w-3" />
-                {a.document_ids.length} document{a.document_ids.length === 1 ? "" : "s"} in scope
+              <div className="mt-3 flex flex-wrap items-center gap-2 text-[11px] text-zinc-500">
+                <span className="inline-flex items-center gap-1.5">
+                  <FileText className="h-3 w-3" />
+                  {a.document_ids.length} doc{a.document_ids.length === 1 ? "" : "s"}
+                </span>
+                <span className="text-zinc-700">·</span>
+                <span
+                  className={
+                    a.preferred_model === "evarx-medical"
+                      ? "rounded-full border border-helix-400/40 bg-helix-400/10 px-1.5 py-0.5 text-[10px] text-helix-200"
+                      : "rounded-full border border-plasma-400/40 bg-plasma-400/10 px-1.5 py-0.5 text-[10px] text-plasma-200"
+                  }
+                >
+                  {a.preferred_model === "evarx-medical" ? "Medical" : "Standard"}
+                </span>
               </div>
             </div>
           ))}
@@ -125,7 +137,14 @@ export function AgentsList({
       {editing ? (
         <AgentForm
           documents={documents}
-          initial={editing}
+          initial={{
+            id: editing.id,
+            name: editing.name,
+            description: editing.description,
+            system_prompt_addendum: editing.system_prompt_addendum,
+            preferred_model: editing.preferred_model,
+            document_ids: editing.document_ids
+          }}
           onClose={() => setEditing(null)}
         />
       ) : null}

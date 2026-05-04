@@ -51,7 +51,7 @@ class ChatTurn(BaseModel):
 
 class ChatRequest(BaseModel):
     messages: list[ChatTurn] = Field(min_length=1, max_length=20)
-    model: Literal["evarx-standard"] = "evarx-standard"
+    model: Literal["evarx-standard", "evarx-medical"] = "evarx-medical"
     temperature: float = Field(default=0.2, ge=0.0, le=1.0)
     max_tokens: int = Field(default=1024, ge=1, le=4000)
     conversation_id: uuid.UUID | None = None

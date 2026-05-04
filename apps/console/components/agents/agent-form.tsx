@@ -15,14 +15,24 @@ const BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
 const schema = z.object({
   name: z.string().min(1, "Required").max(120),
   description: z.string().max(2000).optional().or(z.literal("")),
-  system_prompt_addendum: z.string().max(4000).optional().or(z.literal(""))
+  system_prompt_addendum: z.string().max(4000).optional().or(z.literal("")),
+  preferred_model: z.enum(["evarx-standard", "evarx-medical"])
 });
 
 type FormValues = z.infer<typeof schema>;
 
+export interface AgentFormInitial {
+  id?: string;
+  name?: string;
+  description?: string | null;
+  system_prompt_addendum?: string | null;
+  preferred_model?: "evarx-standard" | "evarx-medical";
+  document_ids?: string[];
+}
+
 interface Props {
   documents: DocumentRow[];
-  initial?: AgentRow;
+  initial?: AgentFormInitial;
   onClose: () => void;
 }
 
@@ -42,9 +52,12 @@ export function AgentForm({ documents, initial, onClose }: Props) {
     defaultValues: {
       name: initial?.name ?? "",
       description: initial?.description ?? "",
-      system_prompt_addendum: initial?.system_prompt_addendum ?? ""
+      system_prompt_addendum: initial?.system_prompt_addendum ?? "",
+      preferred_model: initial?.preferred_model ?? "evarx-medical"
     }
   });
+
+  const isEdit = Boolean(initial?.id);
 
   function toggleDoc(id: string) {
     setDocIds((prev) => {
@@ -70,11 +83,12 @@ export function AgentForm({ documents, initial, onClose }: Props) {
         name: values.name,
         description: values.description || null,
         system_prompt_addendum: values.system_prompt_addendum || null,
+        preferred_model: values.preferred_model,
         document_ids: Array.from(docIds)
       };
-      const url = initial ? `${BASE}/v1/agents/${initial.id}` : `${BASE}/v1/agents`;
+      const url = isEdit ? `${BASE}/v1/agents/${initial!.id}` : `${BASE}/v1/agents`;
       const res = await fetch(url, {
-        method: initial ? "PATCH" : "POST",
+        method: isEdit ? "PATCH" : "POST",
         headers: {
           "Content-Type": "application/json",
           Authorization: `Bearer ${session.access_token}`
@@ -108,11 +122,11 @@ export function AgentForm({ documents, initial, onClose }: Props) {
         </button>
 
         <h2 className="text-lg font-display font-semibold text-white">
-          {initial ? "Edit agent" : "New agent"}
+          {isEdit ? "Edit agent" : initial?.name ? `Use template: ${initial.name}` : "New agent"}
         </h2>
         <p className="mt-1 text-xs text-zinc-500">
-          Agents are named retrieval scopes. Pick a name, an optional system
-          instruction, and which documents the agent can search.
+          Agents are named retrieval scopes. Pick a model, attach the documents
+          they can search, and tweak the instructions if needed.
         </p>
 
         <form className="mt-5 space-y-4" onSubmit={handleSubmit(onSubmit)}>
@@ -140,11 +154,25 @@ export function AgentForm({ documents, initial, onClose }: Props) {
             hint="Appended to the base RAG prompt. E.g. 'Always reference the source SOP version.'"
           >
             <textarea
-              rows={3}
+              rows={6}
               placeholder="Always quote the SOP version and section number when relevant."
               {...register("system_prompt_addendum")}
               className="w-full rounded-xl border border-white/10 bg-ink-800/60 px-3 py-2.5 text-sm text-zinc-100 placeholder:text-zinc-600 outline-none focus:border-helix-400/40"
             />
+          </Field>
+
+          <Field label="Model" hint="The agent will default to this model. Users can still override per-message.">
+            <select
+              {...register("preferred_model")}
+              className="w-full rounded-xl border border-white/10 bg-ink-800/60 px-3 py-2.5 text-sm text-zinc-200 outline-none focus:border-helix-400/40"
+            >
+              <option value="evarx-medical" className="bg-ink-900">
+                Evarx Medical (edge SLM · USP)
+              </option>
+              <option value="evarx-standard" className="bg-ink-900">
+                Evarx Standard (cloud · Gemini Flash)
+              </option>
+            </select>
           </Field>
 
           <div>

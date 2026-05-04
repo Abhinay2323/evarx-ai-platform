@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 
 from evarx_api import __version__
 from evarx_api.agents.routes import router as agents_router
+from evarx_api.agents.routes import templates_router as agent_templates_router
 from evarx_api.auth.routes import router as auth_router
 from evarx_api.chat.authenticated import router as authenticated_chat_router
 from evarx_api.chat.routes import router as chat_router
@@ -15,6 +16,7 @@ from evarx_api.conversations.routes import router as conversations_router
 from evarx_api.documents.routes import router as documents_router
 from evarx_api.health.routes import router as health_router
 from evarx_api.logs.routes import router as audit_router
+from evarx_api.models.routes import router as models_router
 from evarx_api.orgs.members_routes import invites_root as invites_router
 from evarx_api.orgs.members_routes import router as orgs_me_router
 from evarx_api.orgs.routes import router as orgs_router
@@ -87,7 +89,9 @@ def create_app() -> FastAPI:
     app.include_router(orgs_me_router)
     app.include_router(invites_router)
     app.include_router(agents_router)
+    app.include_router(agent_templates_router)
     app.include_router(conversations_router)
+    app.include_router(models_router)
 
     return app
 

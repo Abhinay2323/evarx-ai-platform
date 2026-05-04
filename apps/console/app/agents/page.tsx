@@ -3,8 +3,9 @@ import { ArrowLeft, Bot } from "lucide-react";
 
 import { LogoutButton } from "@/components/auth/logout-button";
 import { AgentsList } from "@/components/agents/agents-list";
+import { TemplatesGallery } from "@/components/agents/templates-gallery";
 import { serverFetch } from "@/lib/server-fetch";
-import type { AgentRow, DocumentRow } from "@/lib/types";
+import type { AgentRow, AgentTemplate, DocumentRow } from "@/lib/types";
 
 export const metadata = { title: "Agents · Evarx Console" };
 export const dynamic = "force-dynamic";
@@ -12,11 +13,13 @@ export const dynamic = "force-dynamic";
 export default async function AgentsPage() {
   let agents: AgentRow[] = [];
   let documents: DocumentRow[] = [];
+  let templates: AgentTemplate[] = [];
   let error: string | null = null;
   try {
-    [agents, documents] = await Promise.all([
+    [agents, documents, templates] = await Promise.all([
       serverFetch<AgentRow[]>("/v1/agents"),
-      serverFetch<DocumentRow[]>("/v1/documents")
+      serverFetch<DocumentRow[]>("/v1/documents"),
+      serverFetch<AgentTemplate[]>("/v1/agent-templates")
     ]);
   } catch (e) {
     error = e instanceof Error ? e.message : "Failed to load agents";
@@ -51,8 +54,8 @@ export default async function AgentsPage() {
           <div>
             <h1 className="text-2xl font-display font-bold text-white">Agents</h1>
             <p className="mt-1 text-sm text-zinc-400">
-              Named retrieval scopes. Each agent has its own document set and
-              optional system instructions, so chats stay focused.
+              Pick a readymade template or build your own. Each agent has its own
+              document scope, preferred model, and system instructions.
             </p>
           </div>
         </div>
@@ -62,7 +65,14 @@ export default async function AgentsPage() {
             {error}
           </div>
         ) : (
-          <AgentsList initial={agents} documents={documents} />
+          <div className="space-y-10">
+            <TemplatesGallery templates={templates} documents={documents} />
+
+            <section>
+              <h2 className="mb-3 text-sm font-semibold text-white">Your agents</h2>
+              <AgentsList initial={agents} documents={documents} />
+            </section>
+          </div>
         )}
       </main>
     </div>

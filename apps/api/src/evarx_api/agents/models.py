@@ -27,6 +27,11 @@ class Agent(Base):
     name: Mapped[str] = mapped_column(String(120), nullable=False)
     description: Mapped[str | None] = mapped_column(Text, nullable=True)
     system_prompt_addendum: Mapped[str | None] = mapped_column(Text, nullable=True)
+    # Which model alias this agent prefers when invoked. The user can override
+    # per-message in the chat picker.
+    preferred_model: Mapped[str] = mapped_column(
+        String(60), nullable=False, default="evarx-medical"
+    )
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

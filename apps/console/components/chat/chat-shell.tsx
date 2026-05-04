@@ -7,19 +7,23 @@ import {
   ArrowUp,
   Bot,
   ChevronDown,
+  Cpu,
   FileText,
   Loader2,
   MessageSquarePlus,
   Trash2,
   User as UserIcon
 } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import remarkGfm from "remark-gfm";
 import { createClient } from "@/lib/supabase/client";
 import { cn } from "@/lib/cn";
 import type {
   AgentRow,
   Citation,
   ConversationDetail,
-  ConversationSummary
+  ConversationSummary,
+  ModelId
 } from "@/lib/types";
 
 const BASE = (process.env.NEXT_PUBLIC_API_URL || "").replace(/\/$/, "");
@@ -72,6 +76,8 @@ export function ChatShell({ conversations, agents, initialConversation }: Props)
   const [agentId, setAgentId] = useState<string | null>(
     initialConversation?.agent_id ?? null
   );
+  const [model, setModel] = useState<ModelId>("evarx-medical");
+  const [drawerOpen, setDrawerOpen] = useState(false);
   const [messages, setMessages] = useState<UiMessage[]>(
     (initialConversation?.messages ?? []).map((m) => ({
       id: m.id,
@@ -96,6 +102,16 @@ export function ChatShell({ conversations, agents, initialConversation }: Props)
     () => agents.find((a) => a.id === agentId) ?? null,
     [agents, agentId]
   );
+
+  // When the user picks an agent, snap the model to that agent's preferred model
+  // (only on first messages — once a conversation has turns, leave the user's
+  // explicit pick alone).
+  useEffect(() => {
+    if (messages.length === 0 && activeAgent) {
+      setModel(activeAgent.preferred_model);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [activeAgent?.id]);
 
   const refreshConvList = useCallback(async () => {
     const auth = await authHeader();
@@ -167,7 +183,8 @@ export function ChatShell({ conversations, agents, initialConversation }: Props)
         body: JSON.stringify({
           messages: history,
           conversation_id: convId,
-          agent_id: agentId
+          agent_id: agentId,
+          model
         })
       });
       if (!res.ok || !res.body) {
@@ -274,77 +291,106 @@ export function ChatShell({ conversations, agents, initialConversation }: Props)
     }
   }
 
+  const sidebar = (
+    <>
+      <button
+        type="button"
+        onClick={() => {
+          newChat();
+          setDrawerOpen(false);
+        }}
+        className="flex items-center justify-center gap-2 border-b border-white/10 px-3 py-3 text-sm text-zinc-200 transition hover:bg-white/5"
+      >
+        <MessageSquarePlus className="h-4 w-4" />
+        New chat
+      </button>
+
+      <div className="flex-1 overflow-y-auto px-2 py-2">
+        {convList.length === 0 ? (
+          <p className="px-2 py-6 text-center text-xs text-zinc-600">
+            No conversations yet.
+          </p>
+        ) : (
+          <ul className="space-y-0.5">
+            {convList.map((c) => {
+              const isActive = c.id === conversationId;
+              return (
+                <li key={c.id}>
+                  <Link
+                    href={`/chat/${c.id}`}
+                    onClick={() => setDrawerOpen(false)}
+                    className={cn(
+                      "group flex items-start gap-2 rounded-lg px-2 py-2 text-xs transition",
+                      isActive
+                        ? "bg-helix-400/10 text-helix-100"
+                        : "text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
+                    )}
+                  >
+                    <span className="flex-1 truncate">{c.title}</span>
+                    <span className="text-[10px] text-zinc-600">
+                      {fmtTime(c.updated_at)}
+                    </span>
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.preventDefault();
+                        void deleteConversation(c.id);
+                      }}
+                      className="hidden h-5 w-5 items-center justify-center rounded text-zinc-500 hover:bg-red-500/10 hover:text-red-300 group-hover:flex"
+                      aria-label="Delete conversation"
+                    >
+                      <Trash2 className="h-3 w-3" />
+                    </button>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
+    </>
+  );
+
   return (
     <div className="grid h-[calc(100vh-9rem)] gap-4 lg:grid-cols-[260px_1fr]">
       <aside className="hidden flex-col rounded-2xl border border-white/10 bg-ink-900/60 lg:flex">
-        <button
-          type="button"
-          onClick={newChat}
-          className="flex items-center justify-center gap-2 border-b border-white/10 px-3 py-3 text-sm text-zinc-200 transition hover:bg-white/5"
-        >
-          <MessageSquarePlus className="h-4 w-4" />
-          New chat
-        </button>
-
-        <div className="flex-1 overflow-y-auto px-2 py-2">
-          {convList.length === 0 ? (
-            <p className="px-2 py-6 text-center text-xs text-zinc-600">
-              No conversations yet.
-            </p>
-          ) : (
-            <ul className="space-y-0.5">
-              {convList.map((c) => {
-                const isActive = c.id === conversationId;
-                return (
-                  <li key={c.id}>
-                    <Link
-                      href={`/chat/${c.id}`}
-                      className={cn(
-                        "group flex items-start gap-2 rounded-lg px-2 py-2 text-xs transition",
-                        isActive
-                          ? "bg-helix-400/10 text-helix-100"
-                          : "text-zinc-400 hover:bg-white/5 hover:text-zinc-200"
-                      )}
-                    >
-                      <span className="flex-1 truncate">{c.title}</span>
-                      <span className="text-[10px] text-zinc-600">
-                        {fmtTime(c.updated_at)}
-                      </span>
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.preventDefault();
-                          void deleteConversation(c.id);
-                        }}
-                        className="hidden h-5 w-5 items-center justify-center rounded text-zinc-500 hover:bg-red-500/10 hover:text-red-300 group-hover:flex"
-                        aria-label="Delete conversation"
-                      >
-                        <Trash2 className="h-3 w-3" />
-                      </button>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          )}
-        </div>
+        {sidebar}
       </aside>
 
+      {drawerOpen ? (
+        <div className="fixed inset-0 z-40 flex lg:hidden">
+          <div
+            className="flex-1 bg-black/60 backdrop-blur-sm"
+            onClick={() => setDrawerOpen(false)}
+          />
+          <aside className="flex w-72 flex-col border-l border-white/10 bg-ink-900">
+            {sidebar}
+          </aside>
+        </div>
+      ) : null}
+
       <div className="flex flex-col rounded-2xl border border-white/10 bg-ink-900/60">
-        <div className="flex items-center justify-between border-b border-white/10 px-4 py-3">
+        <div className="flex flex-wrap items-center gap-3 border-b border-white/10 px-4 py-3">
+          <button
+            type="button"
+            onClick={() => setDrawerOpen(true)}
+            className="inline-flex h-8 w-8 items-center justify-center rounded-lg border border-white/10 bg-white/5 text-zinc-300 lg:hidden"
+            aria-label="Open conversations"
+          >
+            <MessageSquarePlus className="h-4 w-4" />
+          </button>
           <AgentPicker
             agents={agents}
             activeAgent={activeAgent}
             onChange={setAgentId}
             disabled={messages.length > 0}
           />
-          {activeAgent ? (
-            <span className="text-[11px] text-zinc-500">
-              {activeAgent.document_ids.length} doc{activeAgent.document_ids.length === 1 ? "" : "s"} in scope
-            </span>
-          ) : (
-            <span className="text-[11px] text-zinc-500">All org documents</span>
-          )}
+          <ModelPicker value={model} onChange={setModel} />
+          <span className="ml-auto text-[11px] text-zinc-500">
+            {activeAgent
+              ? `${activeAgent.document_ids.length} doc${activeAgent.document_ids.length === 1 ? "" : "s"} in scope`
+              : "All org documents"}
+          </span>
         </div>
 
         <div ref={scrollerRef} className="flex-1 overflow-y-auto px-4 py-6 sm:px-6">
@@ -405,6 +451,37 @@ export function ChatShell({ conversations, agents, initialConversation }: Props)
     </div>
   );
 }
+
+function ModelPicker({
+  value,
+  onChange
+}: {
+  value: ModelId;
+  onChange: (id: ModelId) => void;
+}) {
+  return (
+    <label className="inline-flex items-center gap-2 text-xs text-zinc-400">
+      <Cpu className="h-3.5 w-3.5 text-plasma-300" />
+      Model
+      <div className="relative">
+        <select
+          value={value}
+          onChange={(e) => onChange(e.target.value as ModelId)}
+          className="appearance-none rounded-lg border border-white/10 bg-ink-800/60 py-1.5 pl-3 pr-7 text-xs text-zinc-200 outline-none focus:border-helix-400/40"
+        >
+          <option value="evarx-medical" className="bg-ink-900">
+            Evarx Medical (edge)
+          </option>
+          <option value="evarx-standard" className="bg-ink-900">
+            Evarx Standard (cloud)
+          </option>
+        </select>
+        <ChevronDown className="pointer-events-none absolute right-2 top-1/2 h-3 w-3 -translate-y-1/2 text-zinc-500" />
+      </div>
+    </label>
+  );
+}
+
 
 function AgentPicker({
   agents,
@@ -477,13 +554,18 @@ function ChatBubble({ message }: { message: UiMessage }) {
       <div className={cn("max-w-[85%]", isUser && "flex flex-col items-end")}>
         <div
           className={cn(
-            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed whitespace-pre-wrap",
+            "rounded-2xl px-4 py-2.5 text-sm leading-relaxed",
             isUser
-              ? "bg-plasma-500/20 text-zinc-50"
+              ? "bg-plasma-500/20 text-zinc-50 whitespace-pre-wrap"
               : "border border-white/10 bg-ink-800/60 text-zinc-100"
           )}
         >
-          {message.content || (message.streaming ? <StreamingDots /> : null)}
+          {!isUser && message.content ? (
+            <AssistantMarkdown content={message.content} />
+          ) : (
+            message.content
+          )}
+          {!message.content && message.streaming ? <StreamingDots /> : null}
           {message.streaming && message.content ? <StreamingCursor /> : null}
           {message.error ? (
             <p className="mt-2 text-xs text-red-300">{message.error}</p>
@@ -515,6 +597,14 @@ function ChatBubble({ message }: { message: UiMessage }) {
           </div>
         ) : null}
       </div>
+    </div>
+  );
+}
+
+function AssistantMarkdown({ content }: { content: string }) {
+  return (
+    <div className="markdown-body space-y-2 [&_p]:my-0 [&_ul]:my-1 [&_ul]:list-disc [&_ul]:pl-5 [&_ol]:my-1 [&_ol]:list-decimal [&_ol]:pl-5 [&_li]:my-0.5 [&_strong]:font-semibold [&_strong]:text-white [&_em]:text-zinc-200 [&_code]:rounded [&_code]:bg-ink-950/60 [&_code]:px-1 [&_code]:py-0.5 [&_code]:text-[12px] [&_code]:text-helix-200 [&_pre]:my-2 [&_pre]:overflow-x-auto [&_pre]:rounded-lg [&_pre]:border [&_pre]:border-white/10 [&_pre]:bg-ink-950/60 [&_pre]:p-3 [&_pre>code]:bg-transparent [&_pre>code]:p-0 [&_pre>code]:text-[12px] [&_h1]:my-2 [&_h1]:text-base [&_h1]:font-semibold [&_h1]:text-white [&_h2]:my-2 [&_h2]:text-sm [&_h2]:font-semibold [&_h2]:text-white [&_h3]:my-1.5 [&_h3]:text-sm [&_h3]:font-semibold [&_h3]:text-white [&_a]:text-helix-300 [&_a]:underline [&_table]:my-2 [&_table]:w-full [&_table]:text-xs [&_th]:border [&_th]:border-white/10 [&_th]:px-2 [&_th]:py-1 [&_th]:text-left [&_td]:border [&_td]:border-white/10 [&_td]:px-2 [&_td]:py-1 [&_blockquote]:border-l-2 [&_blockquote]:border-helix-400/40 [&_blockquote]:pl-3 [&_blockquote]:text-zinc-300">
+      <ReactMarkdown remarkPlugins={[remarkGfm]}>{content}</ReactMarkdown>
     </div>
   );
 }

@@ -16,12 +16,15 @@ model_list:
       # Pin output to 768 dims so our pgvector column matches.
       dimensions: 768
 
-  # Placeholder routes — flip on as the providers come online.
-  # - model_name: evarx-medical
-  #   litellm_params:
-  #     model: openai/Llama-3-8B-Evarx-Medical
-  #     api_base: http://vllm-medical:8000/v1
-  #     api_key: os.environ/VLLM_LOCAL_KEY
+  # evarx-medical is the USP slot — fine-tuned medical SLM. Until the real
+  # GGUF/safetensors weights are deployed, we route this alias to Gemini Flash
+  # so the rest of the platform (model picker, agent.preferred_model, /models
+  # page) is wired and ready. Flip the params block when the real model lands;
+  # nothing else has to change.
+  - model_name: evarx-medical
+    litellm_params:
+      model: gemini/gemini-2.5-flash
+      api_key: os.environ/GEMINI_API_KEY
 
 litellm_settings:
   drop_params: true

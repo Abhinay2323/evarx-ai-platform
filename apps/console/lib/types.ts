@@ -88,14 +88,40 @@ export interface InviteRow {
   email_sent?: boolean | null;
 }
 
+export type ModelId = "evarx-standard" | "evarx-medical";
+
 export interface AgentRow {
   id: string;
   name: string;
   description: string | null;
   system_prompt_addendum: string | null;
+  preferred_model: ModelId;
   document_ids: string[];
   created_at: string;
   updated_at: string;
+}
+
+export interface AgentTemplate {
+  slug: string;
+  name: string;
+  function: string;
+  specialty: string;
+  audience: string;
+  short: string;
+  inputs: string[];
+  outputs: string[];
+  preferred_model: ModelId;
+  system_prompt_addendum: string;
+}
+
+export interface ModelInfo {
+  id: ModelId;
+  label: string;
+  kind: "cloud" | "edge";
+  description: string;
+  status_label: "Live" | "Stand-in" | "Coming soon";
+  available: boolean;
+  recommended_for: string[];
 }
 
 export interface ConversationSummary {

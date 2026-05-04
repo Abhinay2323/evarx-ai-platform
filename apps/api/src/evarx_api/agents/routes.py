@@ -13,6 +13,7 @@ from sqlalchemy import delete, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from evarx_api.agents.models import Agent, AgentDocument
+from evarx_api.agents.templates import AgentTemplate, all_templates
 from evarx_api.auth.bootstrap import Identity
 from evarx_api.auth.dependencies import get_current_identity
 from evarx_api.core.db import get_session
@@ -20,6 +21,17 @@ from evarx_api.documents.models import Document
 
 log = structlog.get_logger()
 router = APIRouter(prefix="/v1/agents", tags=["agents"])
+templates_router = APIRouter(prefix="/v1/agent-templates", tags=["agents"])
+
+
+@templates_router.get("", response_model=list[AgentTemplate])
+async def list_templates(
+    _identity: Identity = Depends(get_current_identity),
+) -> list[AgentTemplate]:
+    return all_templates()
+
+
+_MODEL_ALIASES = {"evarx-standard", "evarx-medical"}
 
 
 class AgentRead(BaseModel):
@@ -29,6 +41,7 @@ class AgentRead(BaseModel):
     name: str
     description: str | None
     system_prompt_addendum: str | None
+    preferred_model: str
     document_ids: list[uuid.UUID]
     created_at: datetime
     updated_at: datetime
@@ -38,7 +51,17 @@ class AgentWrite(BaseModel):
     name: Annotated[str, Field(min_length=1, max_length=120)]
     description: str | None = Field(default=None, max_length=2000)
     system_prompt_addendum: str | None = Field(default=None, max_length=4000)
+    preferred_model: str = Field(default="evarx-medical", max_length=60)
     document_ids: list[uuid.UUID] = Field(default_factory=list)
+
+
+def _validate_model(model: str) -> str:
+    if model not in _MODEL_ALIASES:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Unknown preferred_model {model!r}. Allowed: {sorted(_MODEL_ALIASES)}",
+        )
+    return model
 
 
 async def _validate_doc_ids(
@@ -70,6 +93,7 @@ def _to_read(agent: Agent, doc_ids: list[uuid.UUID]) -> AgentRead:
         name=agent.name,
         description=agent.description,
         system_prompt_addendum=agent.system_prompt_addendum,
+        preferred_model=agent.preferred_model,
         document_ids=doc_ids,
         created_at=agent.created_at,
         updated_at=agent.updated_at,
@@ -113,6 +137,7 @@ async def create_agent(
     db: AsyncSession = Depends(get_session),
 ) -> AgentRead:
     valid_docs = await _validate_doc_ids(db, identity.org.id, payload.document_ids)
+    _validate_model(payload.preferred_model)
 
     agent = Agent(
         id=uuid.uuid4(),
@@ -121,6 +146,7 @@ async def create_agent(
         name=payload.name.strip(),
         description=payload.description,
         system_prompt_addendum=payload.system_prompt_addendum,
+        preferred_model=payload.preferred_model,
     )
     db.add(agent)
     db.add_all(
@@ -149,10 +175,12 @@ async def update_agent(
         raise HTTPException(status_code=404, detail="Agent not found")
 
     valid_docs = await _validate_doc_ids(db, identity.org.id, payload.document_ids)
+    _validate_model(payload.preferred_model)
 
     agent.name = payload.name.strip()
     agent.description = payload.description
     agent.system_prompt_addendum = payload.system_prompt_addendum
+    agent.preferred_model = payload.preferred_model
     agent.updated_at = datetime.utcnow()
 
     await db.execute(
