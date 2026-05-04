@@ -4,7 +4,10 @@ and surface their identity to the UI."""
 from fastapi import APIRouter, Depends
 
 from evarx_api.auth.bootstrap import Identity
-from evarx_api.auth.dependencies import get_current_identity_or_pending
+from evarx_api.auth.dependencies import (
+    get_current_identity_or_pending,
+    is_platform_admin_email,
+)
 
 router = APIRouter(prefix="/v1", tags=["auth"])
 
@@ -18,6 +21,7 @@ async def me(
         "supabase_id": identity.auth.id,
         "email": identity.user.email,
         "status": identity.status,
+        "is_platform_admin": is_platform_admin_email(identity.user.email),
         "org": (
             None
             if identity.org is None

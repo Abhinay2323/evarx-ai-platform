@@ -4,12 +4,14 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
   Bot,
+  Building2,
   Cpu,
   FileText,
   LayoutDashboard,
   MessageSquareText,
   ShieldCheck,
   Sparkles,
+  UserCheck,
   Users,
   type LucideIcon
 } from "lucide-react";
@@ -28,7 +30,7 @@ interface NavSection {
   items: NavItem[];
 }
 
-const SECTIONS: NavSection[] = [
+const BASE_SECTIONS: NavSection[] = [
   {
     label: "Workspace",
     items: [
@@ -53,7 +55,24 @@ const SECTIONS: NavSection[] = [
   }
 ];
 
-export function SidebarNav({ orgName }: { orgName: string | null }) {
+const ADMIN_SECTION: NavSection = {
+  label: "Evarx Admin",
+  items: [
+    { href: "/admin/orgs", label: "Customer orgs", icon: Building2 },
+    { href: "/admin/users", label: "Pending signups", icon: UserCheck }
+  ]
+};
+
+export function SidebarNav({
+  orgName,
+  isPlatformAdmin = false
+}: {
+  orgName: string | null;
+  isPlatformAdmin?: boolean;
+}) {
+  const sections = isPlatformAdmin
+    ? [...BASE_SECTIONS, ADMIN_SECTION]
+    : BASE_SECTIONS;
   const pathname = usePathname();
 
   return (
@@ -73,7 +92,7 @@ export function SidebarNav({ orgName }: { orgName: string | null }) {
       </Link>
 
       <div className="flex-1 space-y-6 overflow-y-auto">
-        {SECTIONS.map((section) => (
+        {sections.map((section) => (
           <div key={section.label}>
             <p className="mb-2 px-2 text-[10px] font-semibold uppercase tracking-wider text-zinc-600">
               {section.label}

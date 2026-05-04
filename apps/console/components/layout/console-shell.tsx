@@ -10,10 +10,12 @@ import { TopBar } from "@/components/layout/top-bar";
 export function ConsoleShell({
   email,
   orgName,
+  isPlatformAdmin = false,
   children
 }: {
   email: string | null;
   orgName: string | null;
+  isPlatformAdmin?: boolean;
   children: ReactNode;
 }) {
   const [mobileOpen, setMobileOpen] = useState(false);
@@ -24,7 +26,7 @@ export function ConsoleShell({
 
       <div className="grid min-h-screen lg:grid-cols-[260px_1fr]">
         <aside className="hidden border-r border-white/10 bg-ink-950/80 backdrop-blur lg:block">
-          <SidebarNav orgName={orgName} />
+          <SidebarNav orgName={orgName} isPlatformAdmin={isPlatformAdmin} />
         </aside>
 
         {mobileOpen ? (
@@ -42,7 +44,7 @@ export function ConsoleShell({
               >
                 <X className="h-4 w-4" />
               </button>
-              <SidebarNav orgName={orgName} />
+              <SidebarNav orgName={orgName} isPlatformAdmin={isPlatformAdmin} />
             </aside>
           </div>
         ) : null}

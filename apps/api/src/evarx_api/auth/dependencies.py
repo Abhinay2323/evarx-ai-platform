@@ -87,3 +87,26 @@ async def get_current_identity(
             ),
         )
     return identity
+
+
+def is_platform_admin_email(email: str | None) -> bool:
+    if not email:
+        return False
+    from evarx_api.settings import get_settings  # local to avoid bootstrap cycle
+
+    return email.lower() in get_settings().bootstrap_allowed_emails_list
+
+
+async def require_platform_admin(
+    identity=Depends(get_current_identity_or_pending),
+):
+    """Gate for /v1/platform/* — Evarx team only. Platform admins are the
+    emails listed in BOOTSTRAP_ALLOWED_EMAILS. They may or may not have an
+    org of their own; this dep doesn't care."""
+    email = identity.user.email if identity.user else None
+    if not is_platform_admin_email(email):
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="Platform admin only",
+        )
+    return identity

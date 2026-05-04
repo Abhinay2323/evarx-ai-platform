@@ -24,6 +24,7 @@ export interface Identity {
   supabase_id: string;
   email: string;
   status: "active" | "pending";
+  is_platform_admin: boolean;
   org: {
     id: string;
     name: string;
@@ -32,6 +33,44 @@ export interface Identity {
     region: string;
   } | null;
   role: string | null;
+}
+
+export interface PlatformOrg {
+  id: string;
+  name: string;
+  slug: string;
+  plan: string;
+  region: string;
+  member_count: number;
+  document_count: number;
+  created_at: string;
+}
+
+export interface PlatformPendingUser {
+  id: string;
+  email: string;
+  supabase_id: string | null;
+  created_at: string;
+}
+
+export interface PlatformOrgCreated {
+  org: {
+    id: string;
+    name: string;
+    slug: string;
+    plan: string;
+    region: string;
+    created_at: string;
+  };
+  invite: {
+    id: string;
+    email: string;
+    role: string;
+    token: string;
+    expires_at: string;
+    accept_url: string;
+    email_sent: boolean | null;
+  };
 }
 
 export interface AuditLogEntry {

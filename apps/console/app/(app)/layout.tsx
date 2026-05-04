@@ -28,7 +28,11 @@ export default async function AppLayout({ children }: { children: ReactNode }) {
   }
 
   return (
-    <ConsoleShell email={email} orgName={identity.org.name}>
+    <ConsoleShell
+      email={email}
+      orgName={identity.org.name}
+      isPlatformAdmin={identity.is_platform_admin}
+    >
       {children}
     </ConsoleShell>
   );

@@ -20,6 +20,7 @@ from evarx_api.models.routes import router as models_router
 from evarx_api.orgs.members_routes import invites_root as invites_router
 from evarx_api.orgs.members_routes import router as orgs_me_router
 from evarx_api.orgs.routes import router as orgs_router
+from evarx_api.platform.routes import router as platform_router
 from evarx_api.settings import get_settings
 from evarx_api.usage.routes import router as usage_router
 
@@ -92,6 +93,7 @@ def create_app() -> FastAPI:
     app.include_router(agent_templates_router)
     app.include_router(conversations_router)
     app.include_router(models_router)
+    app.include_router(platform_router)
 
     return app
 
