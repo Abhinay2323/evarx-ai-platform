@@ -46,11 +46,11 @@ export default async function DashboardPage() {
             title="Documents"
             desc="Upload protocols, SOPs, regulatory docs. Indexed automatically for retrieval."
           />
-          <SoonCard
+          <LiveCard
+            href="/audit"
             icon={<ShieldCheck className="h-5 w-5" />}
             title="Audit log"
-            desc="DPDP-grade audit trail of every chat."
-            status="Coming in 2.3"
+            desc="DPDP-grade audit trail of every chat, upload, and delete."
           />
           <SoonCard
             icon={<Settings2 className="h-5 w-5" />}

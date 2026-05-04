@@ -23,6 +23,7 @@ from evarx_api.core.db import get_session
 from evarx_api.documents.ingestion import ingest_document
 from evarx_api.documents.models import Document, DocumentChunk
 from evarx_api.documents.schemas import DocumentRead
+from evarx_api.logs.writer import write_audit_log
 from evarx_api.storage.s3 import (
     StorageError,
     delete_object,
@@ -125,6 +126,24 @@ async def upload_document(
         filename=file.filename,
         size=len(body),
     )
+
+    try:
+        await write_audit_log(
+            db,
+            action="document.upload",
+            org_id=identity.org.id,
+            user_id=identity.user.id,
+            resource=str(doc.id),
+            status_code=201,
+            meta={
+                "filename": file.filename,
+                "content_type": doc.content_type,
+                "size_bytes": doc.size_bytes,
+            },
+        )
+    except Exception:
+        log.exception("upload.audit_failed", document_id=str(doc.id))
+
     return doc
 
 
@@ -146,6 +165,8 @@ async def delete_document(
         raise HTTPException(status_code=404, detail="Document not found")
 
     s3_key = doc.s3_key
+    filename = doc.filename
+    chunk_count = doc.chunk_count
 
     # Cascade deletes chunks via FK ON DELETE CASCADE; do it explicitly here too
     # so the primary delete row isn't orphaned by a future schema change.
@@ -165,3 +186,16 @@ async def delete_document(
             s3_key=s3_key,
             error=str(e),
         )
+
+    try:
+        await write_audit_log(
+            db,
+            action="document.delete",
+            org_id=identity.org.id,
+            user_id=identity.user.id,
+            resource=str(document_id),
+            status_code=204,
+            meta={"filename": filename, "chunks_deleted": chunk_count},
+        )
+    except Exception:
+        log.exception("delete.audit_failed", document_id=str(document_id))
