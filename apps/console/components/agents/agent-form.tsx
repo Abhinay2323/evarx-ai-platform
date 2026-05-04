@@ -27,6 +27,9 @@ export interface AgentFormInitial {
   description?: string | null;
   system_prompt_addendum?: string | null;
   preferred_model?: "evarx-standard" | "evarx-medical";
+  function?: string | null;
+  inputs?: string[];
+  outputs?: string[];
   document_ids?: string[];
 }
 
@@ -84,6 +87,9 @@ export function AgentForm({ documents, initial, onClose }: Props) {
         description: values.description || null,
         system_prompt_addendum: values.system_prompt_addendum || null,
         preferred_model: values.preferred_model,
+        function: initial?.function ?? null,
+        inputs: initial?.inputs ?? [],
+        outputs: initial?.outputs ?? [],
         document_ids: Array.from(docIds)
       };
       const url = isEdit ? `${BASE}/v1/agents/${initial!.id}` : `${BASE}/v1/agents`;

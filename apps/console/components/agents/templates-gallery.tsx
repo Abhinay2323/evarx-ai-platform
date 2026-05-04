@@ -32,6 +32,9 @@ export function TemplatesGallery({
       description: t.short,
       system_prompt_addendum: t.system_prompt_addendum,
       preferred_model: t.preferred_model,
+      function: t.function,
+      inputs: t.inputs,
+      outputs: t.outputs,
       document_ids: []
     };
   }

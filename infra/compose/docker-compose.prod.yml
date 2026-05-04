@@ -80,6 +80,7 @@ services:
       SMTP_USE_TLS: ${SMTP_USE_TLS:-true}
       SMTP_USE_SSL: ${SMTP_USE_SSL:-false}
       CONSOLE_URL: ${CONSOLE_URL:-https://app.evarx.in}
+      BOOTSTRAP_ALLOWED_EMAILS: ${BOOTSTRAP_ALLOWED_EMAILS:-}
       SENTRY_DSN: ${SENTRY_DSN:-}
     depends_on:
       postgres:

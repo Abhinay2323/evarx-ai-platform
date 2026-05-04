@@ -63,11 +63,23 @@ class Settings(BaseSettings):
 
     console_url: str = Field(default="https://app.evarx.in")
 
+    # Founder/admin allowlist — emails here get auto-org bootstrap on first
+    # /v1/me without an invite. Comma-separated, case-insensitive.
+    bootstrap_allowed_emails: str = Field(default="")
+
     sentry_dsn: str | None = None
 
     @property
     def smtp_configured(self) -> bool:
         return bool(self.smtp_host and self.smtp_from)
+
+    @property
+    def bootstrap_allowed_emails_list(self) -> set[str]:
+        return {
+            e.strip().lower()
+            for e in self.bootstrap_allowed_emails.split(",")
+            if e.strip()
+        }
 
     @property
     def allowed_origins_list(self) -> list[str]:

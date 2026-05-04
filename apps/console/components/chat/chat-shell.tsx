@@ -352,7 +352,7 @@ export function ChatShell({ conversations, agents, initialConversation }: Props)
   );
 
   return (
-    <div className="grid h-[calc(100vh-9rem)] gap-4 lg:grid-cols-[260px_1fr]">
+    <div className="grid h-[calc(100vh-7rem)] gap-4 lg:grid-cols-[260px_1fr]">
       <aside className="hidden flex-col rounded-2xl border border-white/10 bg-ink-900/60 lg:flex">
         {sidebar}
       </aside>

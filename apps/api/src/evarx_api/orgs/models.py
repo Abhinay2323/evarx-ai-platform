@@ -37,6 +37,9 @@ class User(Base):
     supabase_id: Mapped[str | None] = mapped_column(String(64), unique=True, nullable=True)
     email: Mapped[str] = mapped_column(String(255), unique=True, nullable=False)
     full_name: Mapped[str | None] = mapped_column(String(120), nullable=True)
+    # active | pending — pending users have no org/membership and see the
+    # awaiting-access screen until an admin invites them.
+    status: Mapped[str] = mapped_column(String(20), nullable=False, default="active")
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

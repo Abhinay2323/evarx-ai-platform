@@ -2,7 +2,7 @@ import uuid
 from datetime import datetime
 
 from sqlalchemy import DateTime, ForeignKey, Index, String, Text, func
-from sqlalchemy.dialects.postgresql import UUID
+from sqlalchemy.dialects.postgresql import JSONB, UUID
 from sqlalchemy.orm import Mapped, mapped_column, relationship
 
 from evarx_api.core.db import Base
@@ -32,6 +32,13 @@ class Agent(Base):
     preferred_model: Mapped[str] = mapped_column(
         String(60), nullable=False, default="evarx-medical"
     )
+    # Function category — Q&A | Summarization | Extraction | Drafting |
+    # Monitoring | Triage. Used in the UI to badge the agent.
+    function: Mapped[str | None] = mapped_column(String(40), nullable=True)
+    # Free-form lists describing what this agent expects and produces, e.g.
+    # ["Protocol PDF", "Investigator brochure"] / ["Plain-language brief"].
+    inputs: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
+    outputs: Mapped[list[str]] = mapped_column(JSONB, nullable=False, default=list)
     created_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), nullable=False
     )

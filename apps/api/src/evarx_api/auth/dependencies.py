@@ -58,16 +58,32 @@ async def get_current_user(
     )
 
 
-async def get_current_identity(
+async def get_current_identity_or_pending(
     auth: "AuthUser" = Depends(get_current_user),
     db: AsyncSession = Depends(get_session),
 ):
-    """Like get_current_user, but also resolves/creates the local user+org rows.
+    """Resolve identity including pending users (no org yet).
 
-    Use this in any route that needs to know the caller's org_id (i.e. anything
-    touching org-scoped data: documents, chat, audit logs).
+    Use this only on endpoints that should be reachable by a user awaiting
+    approval — currently only /v1/me.
     """
-    # Imported lazily to avoid circular import (bootstrap imports AuthUser).
+    # Lazy import to avoid circular (bootstrap imports AuthUser).
     from evarx_api.auth.bootstrap import resolve_identity
 
     return await resolve_identity(db, auth)
+
+
+async def get_current_identity(
+    identity=Depends(get_current_identity_or_pending),
+):
+    """Identity required + active membership. Use for any org-scoped route.
+    Pending users get a 403 with a clear message."""
+    if identity.status != "active" or identity.org is None:
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail=(
+                "Account is awaiting approval. Ask an admin of your org to send "
+                "you an invite."
+            ),
+        )
+    return identity

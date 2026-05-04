@@ -23,14 +23,15 @@ export interface Identity {
   user_id: string;
   supabase_id: string;
   email: string;
+  status: "active" | "pending";
   org: {
     id: string;
     name: string;
     slug: string;
     plan: string;
     region: string;
-  };
-  role: string;
+  } | null;
+  role: string | null;
 }
 
 export interface AuditLogEntry {
@@ -96,6 +97,9 @@ export interface AgentRow {
   description: string | null;
   system_prompt_addendum: string | null;
   preferred_model: ModelId;
+  function: string | null;
+  inputs: string[];
+  outputs: string[];
   document_ids: string[];
   created_at: string;
   updated_at: string;

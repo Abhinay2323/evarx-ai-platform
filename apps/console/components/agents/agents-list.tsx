@@ -79,8 +79,13 @@ export function AgentsList({
                       {a.name}
                     </h3>
                   </div>
+                  {a.function ? (
+                    <span className="mt-1.5 inline-flex items-center rounded-full border border-white/10 bg-white/5 px-1.5 py-0.5 text-[10px] uppercase tracking-wider text-zinc-400">
+                      {a.function}
+                    </span>
+                  ) : null}
                   {a.description ? (
-                    <p className="mt-1 line-clamp-2 text-xs text-zinc-400">
+                    <p className="mt-2 line-clamp-2 text-xs text-zinc-400">
                       {a.description}
                     </p>
                   ) : null}
@@ -143,6 +148,9 @@ export function AgentsList({
             description: editing.description,
             system_prompt_addendum: editing.system_prompt_addendum,
             preferred_model: editing.preferred_model,
+            function: editing.function,
+            inputs: editing.inputs,
+            outputs: editing.outputs,
             document_ids: editing.document_ids
           }}
           onClose={() => setEditing(null)}

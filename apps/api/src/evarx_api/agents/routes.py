@@ -42,6 +42,9 @@ class AgentRead(BaseModel):
     description: str | None
     system_prompt_addendum: str | None
     preferred_model: str
+    function: str | None
+    inputs: list[str]
+    outputs: list[str]
     document_ids: list[uuid.UUID]
     created_at: datetime
     updated_at: datetime
@@ -52,6 +55,9 @@ class AgentWrite(BaseModel):
     description: str | None = Field(default=None, max_length=2000)
     system_prompt_addendum: str | None = Field(default=None, max_length=4000)
     preferred_model: str = Field(default="evarx-medical", max_length=60)
+    function: str | None = Field(default=None, max_length=40)
+    inputs: list[str] = Field(default_factory=list)
+    outputs: list[str] = Field(default_factory=list)
     document_ids: list[uuid.UUID] = Field(default_factory=list)
 
 
@@ -94,6 +100,9 @@ def _to_read(agent: Agent, doc_ids: list[uuid.UUID]) -> AgentRead:
         description=agent.description,
         system_prompt_addendum=agent.system_prompt_addendum,
         preferred_model=agent.preferred_model,
+        function=agent.function,
+        inputs=list(agent.inputs or []),
+        outputs=list(agent.outputs or []),
         document_ids=doc_ids,
         created_at=agent.created_at,
         updated_at=agent.updated_at,
@@ -147,6 +156,9 @@ async def create_agent(
         description=payload.description,
         system_prompt_addendum=payload.system_prompt_addendum,
         preferred_model=payload.preferred_model,
+        function=payload.function,
+        inputs=payload.inputs,
+        outputs=payload.outputs,
     )
     db.add(agent)
     db.add_all(
@@ -181,6 +193,9 @@ async def update_agent(
     agent.description = payload.description
     agent.system_prompt_addendum = payload.system_prompt_addendum
     agent.preferred_model = payload.preferred_model
+    agent.function = payload.function
+    agent.inputs = payload.inputs
+    agent.outputs = payload.outputs
     agent.updated_at = datetime.utcnow()
 
     await db.execute(
