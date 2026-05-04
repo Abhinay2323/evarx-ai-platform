@@ -13,8 +13,11 @@ from evarx_api.chat.routes import router as chat_router
 from evarx_api.documents.routes import router as documents_router
 from evarx_api.health.routes import router as health_router
 from evarx_api.logs.routes import router as audit_router
+from evarx_api.orgs.members_routes import invites_root as invites_router
+from evarx_api.orgs.members_routes import router as orgs_me_router
 from evarx_api.orgs.routes import router as orgs_router
 from evarx_api.settings import get_settings
+from evarx_api.usage.routes import router as usage_router
 
 settings = get_settings()
 
@@ -78,6 +81,9 @@ def create_app() -> FastAPI:
     app.include_router(auth_router)
     app.include_router(documents_router)
     app.include_router(audit_router)
+    app.include_router(usage_router)
+    app.include_router(orgs_me_router)
+    app.include_router(invites_router)
 
     return app
 

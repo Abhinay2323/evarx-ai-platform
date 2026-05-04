@@ -48,3 +48,41 @@ export interface AuditLogPage {
   items: AuditLogEntry[];
   next_cursor: string | null;
 }
+
+export interface UsageSummary {
+  documents_total: number;
+  documents_ready: number;
+  chunks_total: number;
+  storage_bytes: number;
+  queries_total: number;
+  queries_30d: number;
+  queries_this_month: number;
+  org_created_at: string;
+}
+
+export interface DailyPoint {
+  date: string;
+  count: number;
+}
+
+export interface DailySeries {
+  points: DailyPoint[];
+}
+
+export interface MemberRow {
+  user_id: string;
+  email: string;
+  role: string;
+  created_at: string;
+  is_self: boolean;
+}
+
+export interface InviteRow {
+  id: string;
+  email: string;
+  role: string;
+  token: string;
+  created_at: string;
+  expires_at: string;
+  invited_by_email: string | null;
+}

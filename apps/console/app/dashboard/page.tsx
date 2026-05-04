@@ -52,17 +52,17 @@ export default async function DashboardPage() {
             title="Audit log"
             desc="DPDP-grade audit trail of every chat, upload, and delete."
           />
-          <SoonCard
+          <LiveCard
+            href="/members"
             icon={<Settings2 className="h-5 w-5" />}
-            title="Org settings"
-            desc="Members, billing, deployment keys."
-            status="Coming in 2.3"
+            title="Members"
+            desc="Invite teammates, manage roles, see who has access."
           />
-          <SoonCard
+          <LiveCard
+            href="/usage"
             icon={<LayoutDashboard className="h-5 w-5" />}
             title="Usage"
-            desc="Token spend, doc count, query volume."
-            status="Coming in 2.3"
+            desc="Documents indexed, queries this month, daily activity."
           />
         </div>
       </main>
