@@ -49,7 +49,7 @@ const columns: { title: string; links: { label: string; href: string }[] }[] = [
 export function SiteFooter() {
   return (
     <footer className="relative mt-24 border-t border-white/10 bg-ink-950">
-      <div className="container-px grid gap-12 py-16 lg:grid-cols-12">
+      <div className="container-px grid gap-10 py-12 sm:gap-12 sm:py-16 lg:grid-cols-12">
         <div className="lg:col-span-4">
           <Logo />
           <p className="mt-4 max-w-xs text-sm leading-relaxed text-zinc-400">
@@ -71,7 +71,7 @@ export function SiteFooter() {
           </div>
         </div>
 
-        <div className="grid grid-cols-2 gap-8 sm:grid-cols-4 lg:col-span-8">
+        <div className="grid grid-cols-2 gap-x-6 gap-y-8 sm:grid-cols-4 sm:gap-8 lg:col-span-8">
           {columns.map((col) => (
             <div key={col.title}>
               <h4 className="text-xs font-semibold uppercase tracking-wider text-zinc-300">

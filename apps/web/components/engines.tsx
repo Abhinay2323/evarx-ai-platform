@@ -58,7 +58,7 @@ const engines = [
 
 export function Engines() {
   return (
-    <section id="engines" className="relative py-24 sm:py-32">
+    <section id="engines" className="relative py-20 sm:py-32">
       <div className="absolute inset-x-0 top-0 -z-10 h-px w-full bg-gradient-to-r from-transparent via-white/10 to-transparent" />
       <div className="container-px">
         <div className="flex flex-col items-start justify-between gap-6 md:flex-row md:items-end">
@@ -72,7 +72,7 @@ export function Engines() {
           </p>
         </div>
 
-        <div className="mt-14 grid gap-5 lg:grid-cols-3">
+        <div className="mt-10 grid gap-5 sm:mt-14 lg:grid-cols-3">
           {engines.map((e, i) => (
             <motion.article
               key={e.name}
@@ -100,7 +100,7 @@ export function Engines() {
                 <e.icon className="h-5 w-5 text-zinc-400 group-hover:text-white" />
               </header>
 
-              <h3 className="mt-6 font-display text-2xl font-semibold text-white">{e.name}</h3>
+              <h3 className="mt-6 font-display text-xl font-semibold text-white sm:text-2xl">{e.name}</h3>
               <p className="mt-2 text-sm text-zinc-400">{e.blurb}</p>
 
               <ul className="mt-6 space-y-2.5">

@@ -98,11 +98,11 @@ export function DemoForm() {
 
   if (submitted) {
     return (
-      <div className="card p-10 text-center">
+      <div className="card p-6 text-center sm:p-10">
         <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-helix-500/15 text-helix-300">
           <Check className="h-6 w-6" />
         </div>
-        <h3 className="mt-6 font-display text-2xl font-semibold text-white">
+        <h3 className="mt-6 font-display text-xl font-semibold text-white sm:text-2xl">
           Got it. We&apos;ll be in touch.
         </h3>
         <p className="mx-auto mt-3 max-w-md text-sm text-zinc-400">
@@ -114,13 +114,13 @@ export function DemoForm() {
   }
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} className="card p-6 sm:p-8">
+    <form onSubmit={handleSubmit(onSubmit)} className="card p-5 sm:p-6 md:p-8">
       <ol className="mb-8 flex items-center gap-2">
         {steps.map((s, i) => (
           <li key={s.key} className="flex flex-1 items-center gap-2">
             <span
               className={cn(
-                "flex h-7 w-7 items-center justify-center rounded-full border text-xs font-medium",
+                "flex h-7 w-7 shrink-0 items-center justify-center rounded-full border text-xs font-medium",
                 i <= stepIdx
                   ? "border-helix-400/40 bg-helix-500/15 text-helix-200"
                   : "border-white/10 bg-white/5 text-zinc-500"
@@ -130,7 +130,7 @@ export function DemoForm() {
             </span>
             <span
               className={cn(
-                "text-xs",
+                "hidden text-xs sm:inline",
                 i <= stepIdx ? "text-zinc-200" : "text-zinc-500"
               )}
             >

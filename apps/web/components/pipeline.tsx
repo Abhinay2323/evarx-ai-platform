@@ -36,7 +36,7 @@ const steps = [
 
 export function Pipeline() {
   return (
-    <section id="pipeline" className="relative py-24 sm:py-32">
+    <section id="pipeline" className="relative py-20 sm:py-32">
       <div className="container-px">
         <div className="max-w-2xl">
           <span className="eyebrow">How it works</span>
@@ -49,7 +49,7 @@ export function Pipeline() {
           </p>
         </div>
 
-        <ol className="mt-16 grid gap-5 md:grid-cols-2 lg:grid-cols-4">
+        <ol className="mt-12 grid gap-4 sm:mt-16 sm:gap-5 md:grid-cols-2 lg:grid-cols-4">
           {steps.map((step, i) => (
             <motion.li
               key={step.title}

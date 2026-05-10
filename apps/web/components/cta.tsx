@@ -3,9 +3,9 @@ import { ArrowUpRight, CalendarCheck } from "lucide-react";
 
 export function CTA() {
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-20 sm:py-32">
       <div className="container-px">
-        <div className="card relative overflow-hidden p-10 sm:p-14">
+        <div className="card relative overflow-hidden p-6 sm:p-10 md:p-14">
           <div className="absolute -inset-32 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(59,77,255,0.25),transparent_60%)]" />
           <div className="absolute inset-0 -z-10 grid-bg opacity-30 [mask-image:radial-gradient(ellipse_70%_60%_at_50%_50%,black,transparent)]" />
 

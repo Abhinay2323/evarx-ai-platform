@@ -194,7 +194,7 @@ export function EngineQuiz() {
       <div className="container-px max-w-3xl">
         <div className="card overflow-hidden p-0">
           {!done ? (
-            <div className="p-8">
+            <div className="p-6 sm:p-8">
               <div className="flex items-center justify-between">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-helix-300">
                   Question {step + 1} of {totalSteps}
@@ -219,7 +219,7 @@ export function EngineQuiz() {
                   exit={{ opacity: 0, y: -12 }}
                   transition={{ duration: 0.25 }}
                 >
-                  <h3 className="mt-8 font-display text-2xl font-semibold text-white">
+                  <h3 className="mt-7 font-display text-xl font-semibold text-white sm:mt-8 sm:text-2xl">
                     {questions[step].prompt}
                   </h3>
 
@@ -271,7 +271,7 @@ function Result({ engine, reset }: { engine: Engine; reset: () => void }) {
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4 }}
-      className="relative p-8"
+      className="relative p-6 sm:p-8"
     >
       <div
         className={cn(
@@ -288,8 +288,8 @@ function Result({ engine, reset }: { engine: Engine; reset: () => void }) {
         <span className="flex h-12 w-12 items-center justify-center rounded-2xl bg-gradient-to-br from-helix-400 to-plasma-500 text-ink-950">
           <e.icon className="h-5 w-5" />
         </span>
-        <div>
-          <p className="font-display text-2xl font-semibold text-white">{e.title}</p>
+        <div className="min-w-0">
+          <p className="font-display text-lg font-semibold text-white sm:text-2xl">{e.title}</p>
           <p className="mt-1 text-sm text-zinc-400">{e.blurb}</p>
         </div>
       </div>

@@ -83,7 +83,7 @@ export function TCOCalculator() {
       <div className="container-px">
         <div className="card overflow-hidden p-0">
           <div className="grid gap-0 lg:grid-cols-12">
-            <div className="space-y-6 border-b border-white/10 p-8 lg:col-span-5 lg:border-b-0 lg:border-r">
+            <div className="space-y-6 border-b border-white/10 p-6 sm:p-8 lg:col-span-5 lg:border-b-0 lg:border-r">
               <div>
                 <span className="eyebrow">
                   <IndianRupee className="h-3.5 w-3.5" /> TCO calculator
@@ -118,7 +118,7 @@ export function TCOCalculator() {
                   hint={`${users} seats`}
                   onChange={setUsers}
                 />
-                <div className="flex items-center justify-between rounded-xl border border-white/10 bg-ink-900/60 p-3">
+                <div className="flex flex-col gap-3 rounded-xl border border-white/10 bg-ink-900/60 p-3 sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <p className="text-xs font-medium uppercase tracking-wider text-zinc-400">
                       Custom SLM hosting
@@ -138,7 +138,7 @@ export function TCOCalculator() {
                     Custom vs Frontier
                   </p>
                 </div>
-                <p className="mt-3 font-display text-3xl font-semibold text-white">
+                <p className="mt-3 font-display text-2xl font-semibold text-white sm:text-3xl">
                   {inr.format(savings)}
                   <span className="ml-2 text-sm font-normal text-helix-300">
                     saved / month
@@ -150,7 +150,7 @@ export function TCOCalculator() {
               </div>
             </div>
 
-            <div className="p-8 lg:col-span-7">
+            <div className="p-6 sm:p-8 lg:col-span-7">
               <div className="flex items-center justify-between">
                 <p className="font-mono text-[11px] uppercase tracking-wider text-zinc-500">
                   Monthly cost · INR
@@ -174,11 +174,11 @@ export function TCOCalculator() {
                           : "border-white/10 bg-white/[0.02]"
                       )}
                     >
-                      <div className="flex items-center justify-between gap-4">
+                      <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
                         <div className="flex items-center gap-3">
                           <span
                             className={cn(
-                              "flex h-9 w-9 items-center justify-center rounded-lg",
+                              "flex h-9 w-9 shrink-0 items-center justify-center rounded-lg",
                               r.highlight
                                 ? "bg-helix-500/20 text-helix-200"
                                 : "bg-white/5 text-zinc-300"
@@ -186,12 +186,12 @@ export function TCOCalculator() {
                           >
                             <r.icon className="h-4 w-4" />
                           </span>
-                          <div>
+                          <div className="min-w-0">
                             <p className="text-sm font-semibold text-white">{r.name}</p>
                             <p className="text-[11px] text-zinc-500">{r.hint}</p>
                           </div>
                         </div>
-                        <p className="font-display text-lg font-semibold text-white">
+                        <p className="font-display text-lg font-semibold text-white sm:shrink-0">
                           {inr.format(total)}
                         </p>
                       </div>

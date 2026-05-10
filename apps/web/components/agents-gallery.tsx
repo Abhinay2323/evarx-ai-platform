@@ -103,15 +103,15 @@ export function AgentsGallery() {
           onClick={() => setSelected(null)}
         >
           <div
-            className="card w-full max-w-2xl overflow-hidden p-0"
+            className="card max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-b-none p-0 sm:max-h-[85vh] sm:rounded-2xl"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-start justify-between gap-4 border-b border-white/10 p-6">
+            <div className="flex items-start justify-between gap-4 border-b border-white/10 p-5 sm:p-6">
               <div>
                 <p className="font-mono text-[11px] uppercase tracking-wider text-helix-300">
                   {selected.function} · {selected.engineHint}
                 </p>
-                <h3 className="mt-2 font-display text-2xl font-semibold text-white">
+                <h3 className="mt-2 font-display text-xl font-semibold text-white sm:text-2xl">
                   {selected.name}
                 </h3>
                 <p className="mt-1 text-sm text-zinc-400">
@@ -121,12 +121,12 @@ export function AgentsGallery() {
               <button
                 onClick={() => setSelected(null)}
                 aria-label="Close"
-                className="rounded-md border border-white/10 p-1.5 text-zinc-300 hover:bg-white/5"
+                className="shrink-0 rounded-md border border-white/10 p-1.5 text-zinc-300 hover:bg-white/5"
               >
                 <X className="h-4 w-4" />
               </button>
             </div>
-            <div className="space-y-6 p-6">
+            <div className="space-y-6 p-5 sm:p-6">
               <p className="text-sm text-zinc-300">{selected.short}</p>
               <div className="grid gap-5 sm:grid-cols-2">
                 <div>

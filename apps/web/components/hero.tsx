@@ -67,7 +67,7 @@ export function Hero() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.4 }}
-            className="mt-12 grid max-w-xl grid-cols-3 gap-6 border-t border-white/10 pt-6"
+            className="mt-12 grid max-w-xl grid-cols-1 gap-5 border-t border-white/10 pt-6 sm:grid-cols-3 sm:gap-6"
           >
             {[
               { k: "< 6 hrs", v: "to fine-tune a domain SLM" },

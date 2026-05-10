@@ -13,10 +13,10 @@ const flow = [
 
 export function USP() {
   return (
-    <section className="relative py-24 sm:py-32">
+    <section className="relative py-20 sm:py-32">
       <div className="absolute inset-0 -z-10 bg-helix-glow" />
       <div className="container-px">
-        <div className="grid gap-12 lg:grid-cols-12 lg:gap-20">
+        <div className="grid gap-10 lg:grid-cols-12 lg:gap-20">
           <div className="lg:col-span-6">
             <span className="eyebrow">
               <Zap className="h-3.5 w-3.5" /> Our USP
@@ -72,7 +72,7 @@ export function USP() {
           </div>
 
           <div className="lg:col-span-6">
-            <div className="card relative overflow-hidden p-8">
+            <div className="card relative overflow-hidden p-6 sm:p-8">
               <div className="absolute -right-20 -top-20 h-72 w-72 rounded-full bg-helix-500/20 blur-3xl" />
               <div className="absolute -bottom-24 -left-16 h-64 w-64 rounded-full bg-plasma-500/15 blur-3xl" />
 

@@ -80,7 +80,7 @@ export function ChatTeaser() {
         type="button"
         aria-label="Open chat preview"
         onClick={() => setOpen(true)}
-        className="fixed bottom-5 right-5 z-30 inline-flex items-center gap-2 rounded-full border border-white/10 bg-ink-900/80 px-4 py-3 text-sm text-zinc-200 shadow-glow backdrop-blur transition hover:bg-ink-800"
+        className="fixed bottom-4 right-4 z-30 inline-flex items-center gap-2 rounded-full border border-white/10 bg-ink-900/80 px-3.5 py-2.5 text-xs text-zinc-200 shadow-glow backdrop-blur transition hover:bg-ink-800 sm:bottom-5 sm:right-5 sm:px-4 sm:py-3 sm:text-sm"
       >
         <span className="relative flex h-2 w-2">
           <span className="absolute inline-flex h-full w-full animate-pulseRing rounded-full bg-helix-400" />

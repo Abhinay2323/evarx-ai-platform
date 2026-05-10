@@ -20,10 +20,13 @@ export function SolutionPage({ solution }: { solution: Solution }) {
 
       <section className="py-16">
         <div className="container-px">
-          <div className="card grid gap-6 p-8 sm:grid-cols-3">
+          <div className="card grid gap-6 p-6 sm:grid-cols-3 sm:p-8">
             {solution.outcomes.map((o) => (
-              <div key={o.label} className="border-l border-white/10 pl-5 first:border-l-0 first:pl-0">
-                <p className="font-display text-3xl font-semibold text-white">{o.metric}</p>
+              <div
+                key={o.label}
+                className="border-t border-white/10 pt-4 first:border-t-0 first:pt-0 sm:border-l sm:border-t-0 sm:pl-5 sm:pt-0 sm:first:border-l-0 sm:first:pl-0"
+              >
+                <p className="font-display text-2xl font-semibold text-white sm:text-3xl">{o.metric}</p>
                 <p className="mt-1 text-sm text-zinc-400">{o.label}</p>
               </div>
             ))}

@@ -171,7 +171,7 @@ export function FineTuneSimulator() {
     <section className="py-20 sm:py-28">
       <div className="container-px">
         <div className="card overflow-hidden p-0">
-          <header className="flex flex-col gap-3 border-b border-white/10 p-6 sm:flex-row sm:items-center sm:justify-between">
+          <header className="flex flex-col gap-3 border-b border-white/10 p-5 sm:flex-row sm:items-center sm:justify-between sm:p-6">
             <div>
               <p className="font-mono text-[11px] uppercase tracking-wider text-helix-300">
                 Live demo
@@ -197,7 +197,7 @@ export function FineTuneSimulator() {
           </header>
 
           <div className="grid gap-0 lg:grid-cols-12">
-            <div className="border-b border-white/10 p-6 lg:col-span-5 lg:border-b-0 lg:border-r">
+            <div className="border-b border-white/10 p-5 sm:p-6 lg:col-span-5 lg:border-b-0 lg:border-r">
               <div className="flex items-center justify-between text-xs text-zinc-400">
                 <span>Overall</span>
                 <span className="font-mono text-helix-300">{overallPct}%</span>
@@ -290,7 +290,7 @@ export function FineTuneSimulator() {
               )}
             </div>
 
-            <div className="p-6 lg:col-span-7">
+            <div className="p-5 sm:p-6 lg:col-span-7">
               <Console activeIdx={activeIdx} stageElapsed={stageElapsed} done={done} elapsed={elapsed} />
               <MetricStream activeIdx={activeIdx} stageElapsed={stageElapsed} done={done} />
             </div>
@@ -331,7 +331,7 @@ function Console({
         <span>~ evarx · finetune.log</span>
         <span>{elapsed === 0 ? "ready" : `t+${(elapsed / 1000).toFixed(1)}s`}</span>
       </div>
-      <div className="h-44 overflow-hidden">
+      <div className="h-36 overflow-hidden sm:h-44">
         <AnimatePresence initial={false}>
           {visible.slice(-14).map((l) => (
             <motion.div

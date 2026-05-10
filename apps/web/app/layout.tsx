@@ -72,7 +72,7 @@ export default function RootLayout({
       className={`${inter.variable} ${spaceGrotesk.variable} dark bg-ink-950`}
       suppressHydrationWarning
     >
-      <body className="min-h-screen font-sans">
+      <body className="min-h-screen overflow-x-clip font-sans">
         <a
           href="#main"
           className="sr-only focus:not-sr-only focus:fixed focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-helix-500 focus:px-3 focus:py-2 focus:text-ink-950"

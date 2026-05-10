@@ -12,7 +12,7 @@ export function ComplianceStrip() {
   return (
     <section className="relative py-16">
       <div className="container-px">
-        <div className="card flex flex-col items-center gap-8 p-8 sm:flex-row sm:gap-12">
+        <div className="card flex flex-col items-center gap-8 p-6 sm:flex-row sm:gap-12 sm:p-8">
           <div className="text-center sm:text-left">
             <p className="font-display text-lg font-semibold text-white">
               Built for regulated medical workloads.
@@ -21,7 +21,7 @@ export function ComplianceStrip() {
               Compliance is a feature, not an afterthought.
             </p>
           </div>
-          <ul className="grid w-full grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-5">
+          <ul className="grid w-full grid-cols-2 gap-x-4 gap-y-4 min-[480px]:grid-cols-3 sm:grid-cols-5 sm:gap-x-6">
             {items.map((item) => (
               <li key={item.label} className="flex items-center gap-3">
                 <item.icon className="h-5 w-5 text-helix-300" />

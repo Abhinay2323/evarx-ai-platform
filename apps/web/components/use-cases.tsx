@@ -66,9 +66,9 @@ const cases = [
 
 export function UseCases() {
   return (
-    <section id="use-cases" className="relative py-24 sm:py-32">
+    <section id="use-cases" className="relative py-20 sm:py-32">
       <div className="container-px">
-        <div className="flex items-end justify-between gap-6">
+        <div className="flex items-end justify-between gap-3 sm:gap-6">
           <div className="max-w-2xl">
             <span className="eyebrow">Built for medical work</span>
             <h2 className="heading-section mt-5">
@@ -83,7 +83,7 @@ export function UseCases() {
           </Link>
         </div>
 
-        <div className="mt-14 grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+        <div className="mt-10 grid gap-4 sm:mt-14 sm:grid-cols-2 lg:grid-cols-4">
           {cases.map((c, i) => (
             <motion.article
               key={c.title}

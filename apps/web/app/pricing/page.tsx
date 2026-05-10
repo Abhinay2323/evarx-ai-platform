@@ -127,7 +127,7 @@ export default function PricingPage() {
                 <p className="mt-2 text-sm text-zinc-400">{t.blurb}</p>
               </div>
               <div className="mt-6 flex items-baseline gap-1">
-                <span className="font-display text-4xl font-semibold text-white">
+                <span className="font-display text-3xl font-semibold text-white sm:text-4xl">
                   {t.price}
                 </span>
                 <span className="text-sm text-zinc-500">{t.cadence}</span>
@@ -159,7 +159,7 @@ export default function PricingPage() {
 
       <section className="py-16">
         <div className="container-px">
-          <div className="card flex flex-col gap-6 p-8 lg:flex-row lg:items-center">
+          <div className="card flex flex-col gap-6 p-6 sm:p-8 lg:flex-row lg:items-center">
             <div className="flex-1">
               <p className="font-mono text-[11px] uppercase tracking-wider text-helix-300">
                 Enterprise
@@ -180,7 +180,7 @@ export default function PricingPage() {
                 </li>
               ))}
             </ul>
-            <Link href="/demo" className="btn-primary shrink-0">
+            <Link href="/demo" className="btn-primary shrink-0 self-start lg:self-auto">
               Talk to sales <ArrowRight className="h-4 w-4" />
             </Link>
           </div>
